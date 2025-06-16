@@ -1,12 +1,13 @@
-# Mintlify Starter Kit
+# oplog.one Documentation
 
-Click on `Use this template` to copy the Mintlify starter kit. The starter kit contains examples including
+Official documentation for the oplog.one (Omnitro OpenAPI) platform. This documentation site provides comprehensive guides and API reference for developers integrating with oplog.one services.
 
-- Guide pages
-- Navigation
-- Customizations
-- API Reference pages
-- Use of popular components
+## Features
+
+- Complete API reference with interactive endpoints
+- Developer guides and tutorials
+- OpenAPI specification integration
+- Responsive design with dark/light themes
 
 ### Development
 
@@ -24,7 +25,7 @@ mintlify dev
 
 ### Publishing Changes
 
-Install our Github App to auto propagate changes from your repo to your deployment. Changes will be deployed to production automatically after pushing to the default branch. Find the link to install on your dashboard. 
+Documentation changes are automatically deployed to production when pushed to the default branch. 
 
 #### Troubleshooting
 
