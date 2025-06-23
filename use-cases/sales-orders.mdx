@@ -1,0 +1,899 @@
+---
+title: 'Sales Orders'
+description: 'Comprehensive guide for creating and managing sales orders using OPLOG SalesOrder API'
+icon: 'cart-shopping'
+---
+
+# Sales Orders
+
+OPLOG's [SalesOrder API](../api-reference/sales-orders) provides comprehensive order management capabilities for various business scenarios. This guide covers the essential requirements, configurations, and examples for creating different types of sales orders.
+
+## Integration Overview
+
+The SalesOrder API is designed to handle multiple business models:
+- **E-commerce Integration** - Direct website orders with payment processing
+- **Marketplace Integration** - Orders from platforms like Amazon, Trendyol, etc.
+- **B2B Orders** - Corporate orders with specialized billing requirements
+- **Cross-border Orders** - International shipping with currency support
+
+<Info>
+All orders must include unique reference numbers, customer information, and delivery addresses. Optional features like gift services and document attachments enhance the customer experience.
+</Info>
+
+## Creating Orders
+
+OPLOG's [SalesOrder POST endpoint](../api-reference/sales-orders#create-sales-order) has several required fields that you need to be aware of:
+
+<Card title="Quick Start Requirements" icon="rocket">
+  **Essential Fields:** Reference number, sales channel, customer info, addresses, line items, and payment details are mandatory for all orders.
+</Card>
+
+### Core Requirements
+
+<AccordionGroup>
+  <Accordion title="referenceNumber">
+    ```json filename="order-reference.json"
+    {
+      "referenceNumber": "ORD-2025-001"  // Unique order identifier
+    }
+    ```
+    
+    **Requirements:**
+    - Unique identifier for each order in OPLOG.One system
+    - Maximum 30 characters
+    - Cannot contain "_" characters
+    - Must be unique across all orders
+    
+    **Examples:**
+    - `"ORD-2025-001"` ✅
+    - `"MOBILE_ORDER_123"` ❌ (contains underscore)
+    - `"VERY_LONG_ORDER_REFERENCE_NUMBER_EXAMPLE"` ❌ (exceeds 30 chars)
+  </Accordion>
+
+  <Accordion title="salesChannel">
+    ```json filename="sales-channel.json"
+    {
+      "salesChannel": "mystore.com"  // Channel where order was placed
+    }
+    ```
+    
+    **Purpose:** Identifies the platform or channel where the order originated
+    
+    **Common Values:**
+    - `"Trendyol"` - Trendyol marketplace
+    - `"Web"` - Website orders
+    - `"Mobile App"` - Mobile application
+    - `"mystore.com"` - Custom domain/channel
+    - `"b2b.company.com"` - B2B portal
+  </Accordion>
+
+  <Accordion title="customer">
+    ```json filename="customer-info.json"
+    {
+      "customer": {
+        "email": "customer@example.com",     // Unique customer email
+        "firstName": "John",                 // Customer's first name
+        "lastName": "Smith",                 // Customer's last name
+        "phone": "+12125551234"              // Phone with country code
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `email` - Must be unique customer email address
+    - `firstName` - Customer's first name
+    - `lastName` - Customer's last name
+    - `phone` - Must start with country code
+    
+    **Phone Format Examples:**
+    - `"+12125551234"` ✅ (US)
+    - `"+905551234567"` ✅ (Turkey)
+    - `"+4915512345678"` ✅ (Germany)
+    - `"5551234567"` ❌ (missing country code)
+  </Accordion>
+</AccordionGroup>
+
+### Address Requirements
+
+<Info>
+  Address requirements vary by location and order type. Both shipping and billing addresses follow the same structure.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="shippingAddress & billingAddress">
+    ```json
+    {
+      "shippingAddress": {
+        "addressFirstName": "John",           // Recipient first name
+        "addressLastName": "Smith",           // Recipient last name
+        "addressOne": "123 Main Street",      // Primary address line
+        "addressTwo": "Apt 45",               // Secondary address (optional)
+        "district": "Manhattan",              // District/State
+        "city": "New York",                   // City name
+        "country": "United States",           // Country name
+        "postalCode": "10001",                // Postal/ZIP code
+        "addressPhone": "+12125551234"         // Contact phone
+      }
+    }
+    ```
+    
+    **Required Fields (All Locations):**
+    - `addressFirstName` - Recipient's first name
+    - `addressLastName` - Recipient's last name
+    - `addressOne` - Primary address line
+    - `city` - City name
+    - `country` - Country name
+    - `addressPhone` - Phone number with country code
+    
+    **Location-Specific Requirements:**
+    
+    **🇹🇷 Turkey:**
+    - `district` - Must use specified values from Turkey location list
+    - `city` - Must use specified values from Turkey location list
+    - `postalCode` - Optional
+    
+    **🌍 International:**
+    - `postalCode` - **Mandatory** for all international addresses
+    - `district` - Optional (can be state/province)
+    
+    **Optional Fields:**
+    - `addressTwo` - Additional address information
+    - `company` - Company name (for corporate orders)
+    - `taxOffice` - Tax office (for billing addresses in Turkey)
+    - `taxNumber` - Tax number (for corporate billing)
+    
+    <Note>
+      Address fields support ISO 19160 format for international standardization.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+### Line Items
+
+<Info>
+  Each product in the order requires specific information for proper processing.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="lineItems">
+    ```json filename="line-items.json"
+    {
+      "lineItems": [
+        {
+          "amountInOrder": 2,                    // Quantity ordered
+          "sku": "LAPTOP-001",                   // Product identifier
+          "productSalePrice": 1200.00,           // Unit price
+          "currency": "USD"                      // Currency code
+        }
+      ]
+    }
+    ```
+    
+    **Required Fields:**
+    - `amountInOrder` - Quantity of the product being ordered
+      - Must be a positive integer
+      - Example: `2` for ordering 2 units
+    
+    - `sku` - Unique product identifier
+      - Used to identify the specific product in your catalog
+      - Example: `"LAPTOP-001"`, `"PHONE-PRO-128GB"`
+    
+    - `currency` - ISO 4217 currency code
+      - **Mandatory** for Turkey to international orders
+      - **Mandatory** for COD (Cash on Delivery) orders
+      - Examples: `"USD"`, `"EUR"`, `"TRY"`, `"GBP"`
+    
+    **Optional Fields:**
+    - `productSalePrice` - Unit price of the product
+      - Used for pricing calculations and invoicing
+      - Should match your product catalog pricing
+    
+    **Multiple Products Example:**
+    ```json filename="multiple-products.json"
+    {
+      "lineItems": [
+        {
+          "amountInOrder": 1,
+          "sku": "LAPTOP-001",
+          "productSalePrice": 1200.00,
+          "currency": "USD"
+        },
+        {
+          "amountInOrder": 2,
+          "sku": "MOUSE-WIRELESS",
+          "productSalePrice": 25.00,
+          "currency": "USD"
+        }
+      ]
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Payment Options
+
+<Warning>
+  For COD orders, `totalPaymentAmount` field is mandatory and must be accurate.
+</Warning>
+
+<Steps>
+  <Step title="Choose Payment Method">
+    Select from Paid, CreditCard, or Cash (COD) based on your business model
+  </Step>
+  <Step title="Set Payment Amount">
+    Ensure `totalPaymentAmount` matches the order total
+  </Step>
+  <Step title="Specify Currency">
+    Use ISO 4217 currency codes (USD, EUR, TRY, etc.)
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="payment">
+    ```json filename="payment-info.json"
+    {
+      "payment": {
+        "paymentOption": "Paid",               // Payment method
+        "totalPaymentAmount": 2400.00,         // Total amount
+        "currency": "USD"                      // Payment currency
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `paymentOption` - Payment method used
+    - `totalPaymentAmount` - Total payment amount
+    - `currency` - Payment currency (ISO 4217 code)
+    
+    **Available Payment Options:**
+    
+    **"Paid"** - Pre-paid orders
+    ```json
+    {
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 1200.00,
+        "currency": "USD"
+      }
+    }
+    ```
+    - Order already paid through online payment
+    - Most common for e-commerce orders
+    - No additional payment collection needed
+    
+    **"CreditCard"** - Credit card payments
+    ```json
+    {
+      "payment": {
+        "paymentOption": "CreditCard",
+        "totalPaymentAmount": 1200.00,
+        "currency": "USD"
+      }
+    }
+    ```
+    - Credit card payment processed
+    - Similar to "Paid" but specifically indicates card payment
+    
+    **"Cash"** - Cash on delivery (COD)
+    ```json
+    {
+      "payment": {
+        "paymentOption": "Cash",
+        "totalPaymentAmount": 1200.00,    // Mandatory for COD
+        "currency": "USD"
+      }
+    }
+    ```
+    - Payment collected upon delivery
+    - `totalPaymentAmount` is **mandatory** and must be accurate
+    - Carrier will collect the specified amount
+  </Accordion>
+</AccordionGroup>
+
+## Marketplace Integration
+
+<Warning>
+  Marketplace orders require at least one cargo identification method to be processed successfully.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="cargo">
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery",           // Delivery type
+        "cargoCarrier": "FedEx",                 // Carrier name (option 1)
+        "cargoCode": "726123456789",             // Tracking code (option 2)
+        "cargoDocumentUrl": "https://track.com"  // Document URL (option 3)
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `cargoType` - Type of delivery service
+    - **At least one** of the following identification methods:
+    
+    **cargoCarrier (Base Method)**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery",
+        "cargoCarrier": "FedEx"                 // Carrier company name
+      }
+    }
+    ```
+    - Specify the shipping carrier company name
+    - **Common Carriers:** `"FedEx"`, `"UPS"`, `"DHL"`, `"USPS"`, `"Amazon Logistics"`
+    - Can be combined with `cargoCode` or `cargoDocumentUrl` for enhanced tracking
+    
+    **cargoCarrier + cargoCode (Recommended)**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery",
+        "cargoCarrier": "FedEx",
+        "cargoCode": "726123456789"             // Tracking number
+      }
+    }
+    ```
+    - Provides both carrier identification and tracking number
+    - Alphanumeric tracking code provided by carrier
+    - Example formats: `"1Z999AA1234567890"` (UPS), `"1001 2345 6789"` (FedEx)
+    
+    **cargoCarrier + cargoDocumentUrl**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery",
+        "cargoCarrier": "FedEx",
+        "cargoDocumentUrl": "https://tracking.example.com/track"
+      }
+    }
+    ```
+    - Combines carrier name with documentation link
+    - Must be a valid HTTPS URL
+    - Should point to publicly accessible tracking information
+    
+    **Standalone Options (Alternative)**
+    You can also use `cargoCode` or `cargoDocumentUrl` without `cargoCarrier`:
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery",
+        "cargoCode": "726123456789"             // Only tracking code
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cargo Types
+
+<AccordionGroup>
+  <Accordion title="cargoType">
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery"           // Delivery service type
+      }
+    }
+    ```
+    
+    **Available Cargo Types:**
+    
+    **"RegularDelivery"**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+    - Standard shipping service
+    - Used for Marketplace and WEB orders
+    - Normal delivery timeframes (2-5 business days)
+    - Most common cargo type
+    
+    **"SamedayDelivery"**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "SamedayDelivery"
+      }
+    }
+    ```
+    - Same-day delivery service
+    - Available for WEB orders received by **09:00 UTC+0**
+    - Premium service with same-day fulfillment
+    - Limited to supported regions
+    
+    **"ManualDelivery"**
+    ```json
+    {
+      "cargo": {
+        "cargoType": "ManualDelivery"
+      }
+    }
+    ```
+    - Direct courier delivery
+    - Used when standard cargo companies are not available
+    - Manual handling and special delivery arrangements
+    - Typically for high-value or fragile items
+    
+    **Selection Guidelines:**
+    - Use `"RegularDelivery"` for standard e-commerce orders
+    - Use `"SamedayDelivery"` for urgent orders (before 09:00 UTC)
+    - Use `"ManualDelivery"` for special handling requirements
+  </Accordion>
+</AccordionGroup>
+
+## Value Added Services (VAS)
+
+<AccordionGroup>
+  <Accordion title="vas">
+    ```json
+    {
+      "vas": {
+        "giftVAS": {
+          "giftWrap": true,                        // Enable gift wrapping
+          "giftNotes": "Happy Birthday! Love, Mom"  // Gift message
+        },
+        "documentVAS": {
+          "documentUrl": "https://example.com/warranty.pdf"  // Document link
+        }
+      }
+    }
+    ```
+    
+    **Gift Services (giftVAS):**
+    
+    ```json
+    {
+      "vas": {
+        "giftVAS": {
+          "giftWrap": true,                        // Enable gift wrapping
+          "giftNotes": "Happy Birthday! Love, Mom"  // Single-line message
+        }
+      }
+    }
+    ```
+    
+    **Fields:**
+    - `giftWrap` - Boolean to enable/disable gift wrapping
+    - `giftNotes` - Single-line gift message for the recipient
+    
+    **Requirements:**
+    - Gift notes must be single-line (no line breaks)
+    - Keep message concise and appropriate
+    - Gift wrapping may incur additional fees
+    
+    **Document Services (documentVAS):**
+    
+    ```json
+    {
+      "vas": {
+        "documentVAS": {
+          "documentUrl": "https://example.com/warranty-document.pdf"
+        }
+      }
+    }
+    ```
+    
+    **Fields:**
+    - `documentUrl` - Link to document (warranty, manual, certificate)
+    
+    **Requirements:**
+    - Must be a publicly downloadable PDF format link
+    - HTTPS URL required for security
+    - Document should be relevant to the order (warranty, manual, etc.)
+    
+    **Combined VAS Example:**
+    ```json
+    {
+      "vas": {
+        "giftVAS": {
+          "giftWrap": true,
+          "giftNotes": "Congratulations on your graduation!"
+        },
+        "documentVAS": {
+          "documentUrl": "https://brand.com/product-manual.pdf"
+        }
+      }
+    }
+    ```
+    
+    <Note>
+      VAS services are optional but enhance customer experience when used appropriately.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Currency Support
+
+<Expandable title="Supported Currencies (ISO 4217)">
+  **Major Currencies:**
+  - TRY (Turkish Lira), USD (US Dollar), EUR (Euro), GBP (British Pound)
+  
+  **All Supported Currencies:**
+  TRY, USD, EUR, GBP, RUB, UAH, AFN, ALL, AOA, ARS, AMD, AWG, AZN, BSD, BHD, BDT, BBD, BYN, BZD, BMD, BTN, BOB, BAM, BWP, BRL, BGN, BIF, KHR, CAD, CVE, KYD, CLP, CNY, COP, KMF, CDF, CRC, HRK, CUP, CZK, DJF, DOP, EGP, ERN, SZL, ETB, FKP, FJD, XAF, GMD, GEL, GHS, GIP, DKK, GTQ, GNF, GYD, HTG, HNL, HUF, ISK, INR, IDR, IRR, IQD, JMD, JPY, KZT, KES, KPW, KRW, KWD, KGS, LAK, LBP, LSL, LRD, LYD, MOP, HKD, MGA, MWK, MYR, MVR, MUR, MXN, MDL, MNT, MZN, MMK, NAD, NPR, NIO, NGN, MKD, NOK, OMR, PKR, ILS, JOD, PAB, PGK, PYG, PEN, PHP, NZD, PLN, QAR, RON, RWF, DZD, MRU, MAD, SHP, XCD, WST, STN, SAR, RSD, SCR, SLL, SGD, BND, ANG, SBD, SOS, ZAR, SSP, LKR, SDG, SRD, SEK, CHF, SYP, TWD, TJS, TZS, THB, XOF, TOP, TTD, TND, TMT, AUD, UGX, AED, UYU, UZS, VUV, VES, VED, VND, XPF, YER, ZMW
+</Expandable>
+
+<Warning>
+  Currency information is mandatory for international orders from Turkey. Incorrect currency values are the customer's responsibility.
+</Warning>
+
+## Date Format
+
+<Info>
+  All date fields use **ISO-8601 format** as UTC+0.
+</Info>
+
+Example: `"2025-06-17T10:13:41.479Z"`
+
+## Error Handling
+
+<CardGroup cols={2}>
+  <Card title="Validation Errors" icon="exclamation-triangle">
+    **404 Not Found:** Mandatory fields missing or invalid values
+  </Card>
+  <Card title="Business Logic Errors" icon="shield-halved">
+    **Blocked Orders:** Orders may be blocked due to insufficient stock
+  </Card>
+</CardGroup>
+
+<Tip>
+  Always validate required fields locally before API submission to avoid common errors.
+</Tip>
+
+---
+
+## Order Examples
+
+<AccordionGroup>
+  <Accordion title="Standard E-commerce Order">
+    Most common order type with pre-paid payment and regular delivery.
+    
+    ```json filename="standard-ecommerce-order.json"
+    {
+      "referenceNumber": "ORD-2025-001",
+      "salesChannel": "mystore.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "customer@example.com",
+        "firstName": "John",
+        "lastName": "Smith",
+        "phone": "+12125551234"
+      },
+      "shippingAddress": {
+        "addressFirstName": "John",
+        "addressLastName": "Smith",
+        "addressOne": "123 Main Street, Apt 45",
+        "addressTwo": "Unit 8",
+        "district": "Manhattan",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125551234"
+      },
+      "billingAddress": {
+        "addressFirstName": "John",
+        "addressLastName": "Smith",
+        "addressOne": "123 Main Street, Apt 45",
+        "district": "Manhattan",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125551234"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 2,
+          "sku": "LAPTOP-001",
+          "productSalePrice": 1200.00,
+          "currency": "USD"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 2400.00,
+        "currency": "USD"
+      },
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Cash on Delivery (COD) Order">
+    Order where payment is collected upon delivery.
+    
+    ```json
+    {
+      "referenceNumber": "COD-2025-002",
+      "salesChannel": "mobileapp.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "customer2@example.com",
+        "firstName": "Sarah",
+        "lastName": "Johnson",
+        "phone": "+14155552345"
+      },
+      "shippingAddress": {
+        "addressFirstName": "Sarah",
+        "addressLastName": "Johnson",
+        "addressOne": "456 Oak Avenue No:67",
+        "district": "Downtown",
+        "city": "San Francisco",
+        "country": "United States",
+        "addressPhone": "+14155552345"
+      },
+      "billingAddress": {
+        "addressFirstName": "Sarah",
+        "addressLastName": "Johnson",
+        "addressOne": "456 Oak Avenue No:67",
+        "district": "Downtown",
+        "city": "San Francisco",
+        "country": "United States",
+        "addressPhone": "+14155552345"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 1,
+          "sku": "PHONE-001",
+          "currency": "USD"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Cash",
+        "totalPaymentAmount": 850.00,
+        "currency": "USD"
+      },
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Marketplace Order">
+    Order with marketplace-specific shipping information.
+    
+    ```json
+    {
+      "referenceNumber": "MP-2025-003",
+      "salesChannel": "marketplace.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "customer3@example.com",
+        "firstName": "Michael",
+        "lastName": "Brown",
+        "phone": "+13235551122"
+      },
+      "shippingAddress": {
+        "addressFirstName": "Michael",
+        "addressLastName": "Brown",
+        "addressOne": "789 Sunset Boulevard No:123",
+        "district": "Hollywood",
+        "city": "Los Angeles",
+        "country": "United States",
+        "addressPhone": "+13235551122"
+      },
+      "billingAddress": {
+        "addressFirstName": "Michael",
+        "addressLastName": "Brown",
+        "addressOne": "789 Sunset Boulevard No:123",
+        "district": "Hollywood",
+        "city": "Los Angeles",
+        "country": "United States",
+        "addressPhone": "+13235551122"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 3,
+          "sku": "BOOK-001",
+          "productSalePrice": 25.00,
+          "currency": "USD"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 75.00,
+        "currency": "USD"
+      },
+      "cargo": {
+        "cargoCarrier": "FedEx",
+        "cargoCode": "726123456789",
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Corporate Order">
+    B2B order with company information and tax details.
+    
+    ```json
+    {
+      "referenceNumber": "CORP-2025-004",
+      "salesChannel": "b2b.mystore.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "procurement@company.com",
+        "firstName": "Robert",
+        "lastName": "Wilson",
+        "phone": "+12125553456"
+      },
+      "shippingAddress": {
+        "addressFirstName": "Robert",
+        "addressLastName": "Wilson",
+        "company": "ABC Technology Ltd.",
+        "addressOne": "Tech Center Building Floor:5",
+        "addressTwo": "Suite 12",
+        "district": "Midtown",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125553456"
+      },
+      "billingAddress": {
+        "addressFirstName": "Robert",
+        "addressLastName": "Wilson",
+        "company": "ABC Technology Ltd.",
+        "addressOne": "Tech Center Building Floor:5",
+        "district": "Midtown",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125553456",
+        "taxOffice": "Manhattan Tax Office",
+        "taxNumber": "1234567890"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 10,
+          "sku": "TABLET-001",
+          "productSalePrice": 500.00,
+          "currency": "USD"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 5000.00,
+        "currency": "USD"
+      },
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="International Order">
+    Cross-border order with postal code requirements.
+    
+    ```json
+    {
+      "referenceNumber": "INT-2025-005",
+      "salesChannel": "global.mystore.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "customer@example.de",
+        "firstName": "Hans",
+        "lastName": "Mueller",
+        "phone": "+4915512345678"
+      },
+      "shippingAddress": {
+        "addressFirstName": "Hans",
+        "addressLastName": "Mueller",
+        "addressOne": "Hauptstraße 123",
+        "city": "Berlin",
+        "postalCode": "10115",
+        "country": "Germany",
+        "addressPhone": "+4915512345678"
+      },
+      "billingAddress": {
+        "addressFirstName": "Hans",
+        "addressLastName": "Mueller",
+        "addressOne": "Hauptstraße 123",
+        "city": "Berlin",
+        "postalCode": "10115",
+        "country": "Germany",
+        "addressPhone": "+4915512345678"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 1,
+          "sku": "WATCH-001",
+          "productSalePrice": 250.00,
+          "currency": "EUR"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 250.00,
+        "currency": "EUR"
+      },
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Gift Order with VAS Services">
+    Order with gift wrapping and value-added services.
+    
+    ```json
+    {
+      "referenceNumber": "GIFT-2025-006",
+      "salesChannel": "mystore.com",
+      "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+      "customer": {
+        "email": "customer@example.com",
+        "firstName": "Emma",
+        "lastName": "Davis",
+        "phone": "+12125554567"
+      },
+      "shippingAddress": {
+        "addressFirstName": "Emma",
+        "addressLastName": "Davis",
+        "addressOne": "321 Broadway Street No:456",
+        "district": "SoHo",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125554567"
+      },
+      "billingAddress": {
+        "addressFirstName": "Emma",
+        "addressLastName": "Davis",
+        "addressOne": "321 Broadway Street No:456",
+        "district": "SoHo",
+        "city": "New York",
+        "country": "United States",
+        "addressPhone": "+12125554567"
+      },
+      "lineItems": [
+        {
+          "amountInOrder": 1,
+          "sku": "JEWELRY-001",
+          "productSalePrice": 300.00,
+          "currency": "USD"
+        }
+      ],
+      "payment": {
+        "paymentOption": "Paid",
+        "totalPaymentAmount": 300.00,
+        "currency": "USD"
+      },
+      "cargo": {
+        "cargoType": "RegularDelivery"
+      },
+      "vas": {
+        "giftVAS": {
+          "giftWrap": true,
+          "giftNotes": "Happy Birthday! With love..."
+        },
+        "documentVAS": {
+          "documentUrl": "https://example.com/warranty-document.pdf"
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Validation" icon="check-circle">
+    Always validate required fields before submission
+  </Card>
+  <Card title="Error Handling" icon="shield-alt">
+    Implement proper error handling for API responses
+  </Card>
+  <Card title="Currency" icon="coins">
+    Use ISO 4217 currency codes consistently
+  </Card>
+  <Card title="Addresses" icon="map-marker-alt">
+    Ensure complete address information for successful delivery
+  </Card>
+</CardGroup>

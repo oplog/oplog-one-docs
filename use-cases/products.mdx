@@ -1,0 +1,457 @@
+---
+title: 'Products'
+description: 'Comprehensive guide for creating and managing products using OPLOG Product API'
+icon: 'box'
+---
+
+# Products
+
+OPLOG's [Product API](../api-reference/products) provides comprehensive product management capabilities for various business scenarios. This guide covers the essential requirements, configurations, and examples for creating different types of products in your catalog.
+
+## Integration Overview
+
+The Product API is designed to handle multiple product types:
+- **Simple Products** - Basic product registration with minimal information
+- **Physical Products** - Detailed products with dimensions and weight
+- **Digital Products** - Software, books, and downloadable content
+- **Apparel Products** - Clothing with size and material specifications
+- **Multi-currency Products** - International products with different currencies
+
+<Info>
+All products must include unique SKU, product name, and type. Optional features like images, categories, and pricing enhance the product catalog experience.
+</Info>
+
+## Creating Products
+
+OPLOG's [Product POST endpoint](../api-reference/products#create-product) has several required fields that you need to be aware of:
+
+<Card title="Quick Start Requirements" icon="rocket">
+  **Essential Fields:** SKU (unique), name, type, and barcodes are mandatory for all products.
+</Card>
+
+<Steps>
+  <Step title="Set Unique SKU">
+    Define a unique product identifier that won't be repeated system-wide
+  </Step>
+  <Step title="Add Product Information">
+    Include name, type, and barcode arrays for product identification
+  </Step>
+  <Step title="Configure Optional Features">
+    Add images, pricing, dimensions, and categories as needed
+  </Step>
+</Steps>
+
+### Core Requirements
+
+<AccordionGroup>
+  <Accordion title="sku">
+    ```json filename="product-sku.json"
+    {
+      "sku": "LAPTOP-DELL-001"  // Unique product identifier
+    }
+    ```
+    
+    **Requirements:**
+    - Must be unique for each product across the entire system
+    - Cannot be repeated system-wide
+    - Alphanumeric characters can be used
+    - Recommended format: `CATEGORY-BRAND-NUMBER`
+    
+    **Examples:**
+    - `"LAPTOP-DELL-001"` ✅
+    - `"TSHIRT-BLU-M"` ✅
+    - `"BOOK-PROG-001"` ✅
+  </Accordion>
+
+  <Accordion title="name">
+    ```json filename="product-name.json"
+    {
+      "name": "Dell Inspiron 15 3000 Laptop"  // Product display name
+    }
+    ```
+    
+    **Requirements:**
+    - Product name is mandatory
+    - Must use characters included in the ISO 8859-1 character set
+    - Should be descriptive and customer-friendly
+    
+    **Best Practices:**
+    - Include brand name when applicable
+    - Add key specifications (size, model, etc.)
+    - Keep it concise but informative
+  </Accordion>
+
+  <Accordion title="type">
+    ```json filename="product-type.json"
+    {
+      "type": "Product"  // Fixed value
+    }
+    ```
+    
+    **Requirements:**
+    - Must be sent as fixed value `"Product"`
+    - This field distinguishes products from other entity types
+    - Always use exactly `"Product"` (case-sensitive)
+  </Accordion>
+
+  <Accordion title="barcodes">
+    ```json filename="product-barcodes.json"
+    {
+      "barcodes": [
+        "1234567890123",
+        "9876543210987"
+      ]
+    }
+    ```
+    
+    **Requirements:**
+    - Can be sent as unique barcode arrays
+    - Multiple barcodes are supported
+    - Each barcode should be specified as a separate string
+    - Should not exceed 100 characters per barcode
+    - Should not contain special characters
+    - Barcode fields supported to ISO 646
+    
+    **Multiple Barcodes:**
+    - Use array format for multiple barcodes
+    - Each entry should be a separate string
+    - Useful for products with multiple packaging formats
+  </Accordion>
+</AccordionGroup>
+
+## Optional Features
+
+<AccordionGroup>
+  <Accordion title="imageUrl">
+    ```json filename="product-image.json"
+    {
+      "imageUrl": "https://example.com/images/laptop-dell.jpeg"
+    }
+    ```
+    
+    **Requirements:**
+    - Only PNG and JPEG formats are supported
+    - Must be publicly accessible URL
+    - High-quality product image is recommended
+    
+    **Best Practices:**
+    - Use HTTPS URLs for security
+    - Optimize images for web (reasonable file size)
+    - Ensure consistent image dimensions across products
+  </Accordion>
+
+  <Accordion title="category">
+    ```json filename="product-category.json"
+    {
+      "category": "Electronics/Computer"
+    }
+    ```
+    
+    **Purpose:**
+    - Organize products into logical groups
+    - Helps with catalog navigation and filtering
+    - Use hierarchical structure with forward slashes
+    
+    **Examples:**
+    - `"Electronics/Computer"`
+    - `"Apparel/T-Shirt"`
+    - `"Books/Technology"`
+    - `"Home Decor/Vase"`
+  </Accordion>
+
+  <Accordion title="pricing">
+    ```json filename="product-pricing.json"
+    {
+      "price": 800.00,
+      "salePrice": 700.00,
+      "currency": "USD",
+      "taxRatio": 8.25
+    }
+    ```
+    
+    **Fields:**
+    - `price` - Regular product price
+    - `salePrice` - Discounted price (optional)
+    - `currency` - ISO 4217 currency code
+    - `taxRatio` - Local tax rate (percentage)
+    
+    **Currency Support:**
+    - Must use ISO 4217 standardization
+    - `UNSUPPORTED` value can be used for special cases
+    - Price fields must be appropriate for the currency
+  </Accordion>
+
+  <Accordion title="dimensions & weight">
+    ```json filename="product-dimensions.json"
+    {
+      "width": 35.8,
+      "length": 24.7,
+      "height": 2.2,
+      "weight": 1.83,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+    
+    **Requirements:**
+    - Dimensions in CM (centimeters)
+    - Weight in KG (kilograms)
+    - Important for shipping calculations
+    
+    **Default Units:**
+    - `unitOfDimension`: "Cm" (default)
+    - `unitOfWeight`: "Kg" (default)
+  </Accordion>
+
+  <Accordion title="additional fields">
+    ```json filename="product-additional.json"
+    {
+      "salesUrl": "https://mystore.com/products/dell-laptop",
+      "tag": "new-model,laptop,electronics"
+    }
+    ```
+    
+    **Fields:**
+    - `salesUrl` - Product sales page link
+    - `tag` - Product tags (comma-separated)
+    
+    **Tag Management:**
+    - Multiple tags are supported with comma separation
+    - Free text field for flexible categorization
+    - Useful for integration processes and filtering
+  </Accordion>
+</AccordionGroup>
+
+## Currency Support
+
+<Expandable title="Supported Currencies (ISO 4217)">
+  **Major Currencies:**
+  - TRY (Turkish Lira), USD (US Dollar), EUR (Euro), GBP (British Pound)
+  
+  **All Supported Currencies:**
+  TRY, USD, EUR, GBP, RUB, UAH, UNSUPPORTED, AFN, ALL, AOA, ARS, AMD, AWG, AZN, BSD, BHD, BDT, BBD, BYN, BZD, BMD, BTN, BOB, BAM, BWP, BRL, BGN, BIF, KHR, CAD, CVE, KYD, CLP, CNY, COP, KMF, CDF, CRC, HRK, CUP, CZK, DJF, DOP, EGP, ERN, SZL, ETB, FKP, FJD, XAF, GMD, GEL, GHS, GIP, DKK, GTQ, GNF, GYD, HTG, HNL, HUF, ISK, INR, IDR, IRR, IQD, JMD, JPY, KZT, KES, KPW, KRW, KWD, KGS, LAK, LBP, LSL, LRD, LYD, MOP, HKD, MGA, MWK, MYR, MVR, MUR, MXN, MDL, MNT, MZN, MMK, NAD, NPR, NIO, NGN, MKD, NOK, OMR, PKR, ILS, JOD, PAB, PGK, PYG, PEN, PHP, NZD, PLN, QAR, RON, RWF, DZD, MRU, MAD, SHP, XCD, WST, STN, SAR, RSD, SCR, SLL, SGD, BND, ANG, SBD, SOS, ZAR, SSP, LKR, SDG, SRD, SEK, CHF, SYP, TWD, TJS, TZS, THB, XOF, TOP, TTD, TND, TMT, AUD, UGX, AED, UYU, UZS, VUV, VES, VED, VND, XPF, YER, ZMW
+</Expandable>
+
+<Warning>
+  Price fields must be appropriate for the selected currency. Use `UNSUPPORTED` value only for special cases.
+</Warning>
+
+---
+
+## Product Examples
+
+<AccordionGroup>
+  <Accordion title="Simple Product Registration">
+    Minimal product setup with required fields only.
+    
+    ```json filename="simple-product.json"
+    {
+      "sku": "BASIC-001",
+      "barcodes": [
+        "1234567890125",
+        "9876543210983"
+      ],
+      "name": "Coffee Cup",
+      "type": "Product"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Detailed Physical Product">
+    Complete product information including dimensions, pricing, and images.
+    
+    ```json filename="detailed-laptop.json"
+    {
+      "sku": "LAPTOP-DELL-001",
+      "imageUrl": "https://example.com/images/laptop-dell.jpeg",
+      "name": "Dell Inspiron 15 3000 Laptop",
+      "barcodes": [
+        "1234567890123",
+        "9876543210987"
+      ],
+      "type": "Product",
+      "category": "Electronics/Computer",
+      "price": 800.00,
+      "salePrice": 700.00,
+      "currency": "USD",
+      "taxRatio": 8.25,
+      "salesUrl": "https://mystore.com/products/dell-laptop",
+      "tag": "new-model,laptop,electronics",
+      "width": 35.8,
+      "length": 24.7,
+      "height": 2.2,
+      "weight": 1.83,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Apparel Product">
+    Clothing item with size and material specifications.
+    
+    ```json filename="apparel-tshirt.json"
+    {
+      "sku": "TSHIRT-BLU-M",
+      "imageUrl": "https://example.com/images/tshirt-blue.png",
+      "name": "Blue Cotton T-Shirt - Medium",
+      "barcodes": [
+        "8690123456789"
+      ],
+      "type": "Product",
+      "category": "Apparel/T-Shirt",
+      "price": 29.99,
+      "salePrice": 24.99,
+      "currency": "USD",
+      "taxRatio": 8.75,
+      "salesUrl": "https://fashion.com/blue-tshirt-m",
+      "tag": "summer-collection,cotton,medium",
+      "width": 30,
+      "length": 25,
+      "height": 1,
+      "weight": 0.2,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Book Product">
+    Digital or physical book with zero tax rate.
+    
+    ```json filename="book-programming.json"
+    {
+      "sku": "BOOK-PROG-001",
+      "imageUrl": "https://example.com/images/programming-book.jpeg",
+      "name": "JavaScript Programming Book",
+      "barcodes": [
+        "9786051234567"
+      ],
+      "type": "Product",
+      "category": "Books/Technology",
+      "price": 45.50,
+      "currency": "USD",
+      "taxRatio": 0,
+      "salesUrl": "https://bookstore.com/js-programming",
+      "tag": "programming,javascript,tech",
+      "width": 16,
+      "length": 24,
+      "height": 2,
+      "weight": 0.4,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Electronics Product">
+    High-tech product with premium pricing.
+    
+    ```json filename="electronics-watch.json"
+    {
+      "sku": "WATCH-APPLE-001",
+      "imageUrl": "https://example.com/images/apple-watch.png",
+      "name": "Apple Watch Series 9",
+      "barcodes": [
+        "194253001652",
+        "888462177638"
+      ],
+      "type": "Product",
+      "category": "Electronics/Smart Watch",
+      "price": 399.00,
+      "salePrice": 349.00,
+      "currency": "USD",
+      "taxRatio": 8.25,
+      "salesUrl": "https://techstore.com/apple-watch-9",
+      "tag": "apple-products,smartwatch,fitness",
+      "width": 4.5,
+      "length": 3.8,
+      "height": 1.1,
+      "weight": 0.042,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Cosmetic Product">
+    Beauty product with organic certification.
+    
+    ```json filename="cosmetic-cream.json"
+    {
+      "sku": "CREAM-FACE-001",
+      "imageUrl": "https://example.com/images/face-cream.png",
+      "name": "Moisturizing Face Cream 50ml",
+      "barcodes": [
+        "8690987654321"
+      ],
+      "type": "Product",
+      "category": "Cosmetics/Skincare",
+      "price": 29.99,
+      "salePrice": 24.99,
+      "currency": "USD",
+      "taxRatio": 8.75,
+      "salesUrl": "https://beauty.com/face-cream-50ml",
+      "tag": "organic,skincare,moisturizer",
+      "width": 5,
+      "length": 5,
+      "height": 8,
+      "weight": 0.1,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Multi-Currency Product (EUR)">
+    International product with Euro pricing.
+    
+    ```json filename="international-perfume.json"
+    {
+      "sku": "PERFUME-EUR-001",
+      "imageUrl": "https://example.com/images/perfume.png",
+      "name": "French Perfume 100ml",
+      "barcodes": [
+        "3274872375475"
+      ],
+      "type": "Product",
+      "category": "Cosmetics/Perfume",
+      "price": 85.00,
+      "salePrice": 75.00,
+      "currency": "EUR",
+      "taxRatio": 20.00,
+      "salesUrl": "https://parfumstore.com/french-perfume",
+      "tag": "luxury-perfume,french,100ml",
+      "width": 6,
+      "length": 4,
+      "height": 12,
+      "weight": 0.15,
+      "unitOfDimension": "Cm",
+      "unitOfWeight": "Kg"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="SKU Management" icon="barcode">
+    Use consistent, descriptive SKU patterns for easy identification
+  </Card>
+  <Card title="Image Quality" icon="image">
+    Provide high-quality, consistent product images in PNG or JPEG format
+  </Card>
+  <Card title="Accurate Dimensions" icon="ruler-combined">
+    Include precise measurements for shipping cost calculations
+  </Card>
+  <Card title="Category Structure" icon="sitemap">
+    Use hierarchical categories for better product organization
+  </Card>
+</CardGroup>
+
+<Tip>
+  With this endpoint, you can manage your product catalog, track inventory, and register product information to be used in order processes.
+</Tip>

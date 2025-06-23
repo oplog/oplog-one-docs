@@ -1,0 +1,392 @@
+---
+title: 'Receiving Orders'
+description: 'Comprehensive guide for creating and managing receiving orders using OPLOG Receiving Order API'
+icon: 'truck-loading'
+---
+
+# Receiving Orders
+
+OPLOG's [Receiving Order API](../api-reference/receiving-orders) enables you to initiate the receiving process for products to be sent to the warehouse. This guide covers the essential requirements, configurations, and examples for creating different types of receiving orders.
+
+## Integration Overview
+
+The Receiving Order API is designed to handle multiple transfer methods:
+- **Cargo Transfer** - Shipment via cargo companies (FedEx, UPS, DHL)
+- **Pickup Transfer** - Pickup from your warehouse or location
+- **Carriage Transfer** - Courier delivery services
+- **Multi-Product Shipments** - Bulk receiving orders with multiple SKUs
+
+<Info>
+All receiving orders must include unique reference numbers, line items with SKUs and expected quantities, and transfer type configuration. Products must be pre-registered in the system using the Product API.
+</Info>
+
+## Creating Receiving Orders
+
+OPLOG's [Receiving Order POST endpoint](../api-reference/receiving-orders#create-receiving-order) has several required fields that you need to be aware of:
+
+<Card title="Quick Start Requirements" icon="rocket">
+  **Essential Fields:** Reference number, line items (SKU + expected quantity), and transfer type configuration are mandatory for all receiving orders.
+</Card>
+
+<Steps>
+  <Step title="Pre-register Products">
+    Ensure all SKUs are registered in the system using the Product API
+  </Step>
+  <Step title="Set Reference Number">
+    Define a unique identifier for tracking the receiving order
+  </Step>
+  <Step title="Configure Line Items">
+    Specify SKUs and expected quantities for products to be received
+  </Step>
+  <Step title="Select Transfer Type">
+    Choose appropriate delivery method and provide required details
+  </Step>
+</Steps>
+
+### Core Requirements
+
+<AccordionGroup>
+  <Accordion title="referenceNumber">
+    ```json filename="receiving-reference.json"
+    {
+      "referenceNumber": "REC-CARGO-001"  // Unique receiving order identifier
+    }
+    ```
+    
+    **Requirements:**
+    - Must be unique for each receiving order
+    - Traceable and meaningful coding is recommended
+    - Suggested format: `REC-[TYPE]-[SEQUENCE]`
+    
+    **Examples:**
+    - `"REC-CARGO-001"` ✅ (Cargo shipment)
+    - `"REC-PICKUP-002"` ✅ (Pickup transfer)
+    - `"REC-COURIER-003"` ✅ (Courier delivery)
+  </Accordion>
+
+  <Accordion title="lineItems">
+    ```json filename="receiving-lineitems.json"
+    {
+      "lineItems": [
+        {
+          "sku": "LAPTOP-001",        // Product SKU
+          "expectedQuantity": 5       // Expected quantity to receive
+        },
+        {
+          "sku": "MOUSE-001",
+          "expectedQuantity": 10
+        }
+      ]
+    }
+    ```
+    
+    **Required Fields:**
+    - `sku` - SKU value of the product registered in the system
+    - `expectedQuantity` - Number of units you plan to send
+    
+    **Requirements:**
+    - SKUs must be pre-registered in the system using Product API
+    - Expected quantity must be a positive integer
+    - Multiple products can be included in single order
+    
+    <Note>
+      Products must be created beforehand with OPLOG Product API before creating receiving orders.
+    </Note>
+  </Accordion>
+
+  <Accordion title="transferType">
+    ```json filename="transfer-type.json"
+    {
+      "transferType": "CargoTransfer"  // Delivery method
+    }
+    ```
+    
+    **Available Transfer Types:**
+    
+    **"CargoTransfer"** - Shipment via cargo companies
+    - Requires: `shipmentDate`, `cargoCompanyName`, `trackingNumber`
+    - Best for: Large shipments, long-distance delivery
+    
+    **"PickupTransfer"** - Pickup from warehouse
+    - Requires: `pickupDate`, `pickupAddress`
+    - Best for: Local deliveries, direct handover
+    
+    **"CarriageTransfer"** - Courier delivery
+    - Requires: `shipmentDate`, `carriageCompanyName`, `waybillNumber`
+    - Best for: Express delivery, valuable items
+  </Accordion>
+</AccordionGroup>
+
+## Transfer Type Configurations
+
+<AccordionGroup>
+  <Accordion title="CargoTransfer">
+    ```json filename="cargo-transfer.json"
+    {
+      "transferType": "CargoTransfer",
+      "cargoTransfer": {
+        "shipmentDate": "2025-06-20T14:30:00.000Z",
+        "cargoCompanyName": "FedEx",
+        "trackingNumber": "726123456789"
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `shipmentDate` - When the cargo will be shipped (ISO 8601 format)
+    - `cargoCompanyName` - Name of the cargo company
+    - `trackingNumber` - Cargo tracking number
+    
+    **Common Cargo Companies:**
+    - `"FedEx"`, `"UPS"`, `"DHL"`, `"USPS"`
+    - Local carriers like `"Aras Kargo"`, `"MNG Kargo"`
+  </Accordion>
+
+  <Accordion title="PickupTransfer">
+    ```json filename="pickup-transfer.json"
+    {
+      "transferType": "PickupTransfer",
+      "pickupTransfer": {
+        "pickupDate": "2025-06-18T09:00:00.000Z",
+        "pickupAddress": "Main Street Industrial Complex, Block 1 No:23, Brooklyn/New York"
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `pickupDate` - When the pickup will occur (ISO 8601 format)
+    - `pickupAddress` - Complete address for pickup location
+    
+    **Best Practices:**
+    - Provide detailed address including building/unit numbers
+    - Include contact information if needed
+    - Schedule during business hours
+  </Accordion>
+
+  <Accordion title="CarriageTransfer">
+    ```json filename="carriage-transfer.json"
+    {
+      "transferType": "CarriageTransfer",
+      "carriageTransfer": {
+        "shipmentDate": "2025-06-17T16:00:00.000Z",
+        "carriageCompanyName": "Express Courier",
+        "waybillNumber": "EX123456789"
+      }
+    }
+    ```
+    
+    **Required Fields:**
+    - `shipmentDate` - When the courier will ship (ISO 8601 format)
+    - `carriageCompanyName` - Name of the courier company
+    - `waybillNumber` - Courier waybill/tracking number
+    
+    **Use Cases:**
+    - High-value items requiring special handling
+    - Express same-day or next-day delivery
+    - Fragile or sensitive products
+  </Accordion>
+</AccordionGroup>
+
+## Date Format Requirements
+
+<Warning>
+  All date fields must be in ISO 8601 format with timezone information.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Date Scheduling Rules">
+    **Current Scheduling Requirements:**
+    
+    **For requests before June 17, 2025 1:00 PM (UTC+0):**
+    - Dates should be between June 18, 2025 6:00 AM and 2:00 PM
+    
+    **For requests after June 17, 2025 1:00 PM (UTC+0):**
+    - Dates should be between June 19, 2025 6:00 AM and 2:00 PM
+    
+    **Format Requirements:**
+    - Use ISO 8601 format: `"2025-06-20T14:30:00.000Z"`
+    - Include timezone information (recommended)
+    - Future dates should be used
+    - Business hours are preferred (6:00 AM - 2:00 PM UTC)
+  </Accordion>
+</AccordionGroup>
+
+## Quantity Tracking
+
+<Info>
+  Use the GET Receiving Orders API to track accepted quantities vs. expected quantities.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Quantity Fields">
+    **Expected vs Accepted Quantities:**
+    
+    - `expectedQuantity` - Number you plan to send
+    - `acceptedQuantity` - Number OPLOG actually received (from GET API)
+    
+    **Usage:**
+    ```json filename="quantity-tracking.json"
+    {
+      "lineItems": [
+        {
+          "sku": "LAPTOP-001",
+          "expectedQuantity": 5    // What you're sending
+        }
+      ]
+    }
+    ```
+    
+    **GET Response:**
+    ```json filename="quantity-response.json"
+    {
+      "sku": "LAPTOP-001",
+      "expectedQuantity": 5,
+      "acceptedQuantity": 4      // What was actually received
+    }
+    ```
+    
+    <Tip>
+      The `acceptedQuantity` represents the number that will be added to sellable stocks for this product.
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Receiving Order Examples
+
+<AccordionGroup>
+  <Accordion title="Cargo Receiving Order">
+    Standard cargo shipment with multiple products.
+    
+    ```json filename="cargo-receiving-order.json"
+    {
+      "referenceNumber": "REC-CARGO-001",
+      "lineItems": [
+        {
+          "sku": "LAPTOP-001",
+          "expectedQuantity": 5
+        },
+        {
+          "sku": "MOUSE-001",
+          "expectedQuantity": 10
+        }
+      ],
+      "transferType": "CargoTransfer",
+      "cargoTransfer": {
+        "shipmentDate": "2025-06-20T14:30:00.000Z",
+        "cargoCompanyName": "FedEx",
+        "trackingNumber": "726123456789"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Warehouse Pickup Order">
+    Pickup directly from your location.
+    
+    ```json filename="pickup-receiving-order.json"
+    {
+      "referenceNumber": "REC-PICKUP-002",
+      "lineItems": [
+        {
+          "sku": "PHONE-001",
+          "expectedQuantity": 15
+        },
+        {
+          "sku": "CASE-001",
+          "expectedQuantity": 15
+        }
+      ],
+      "transferType": "PickupTransfer",
+      "pickupTransfer": {
+        "pickupDate": "2025-06-18T09:00:00.000Z",
+        "pickupAddress": "Main Street Industrial Complex, Block 1 No:23, Brooklyn/New York"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Courier Receiving Order">
+    Express courier delivery for valuable items.
+    
+    ```json filename="courier-receiving-order.json"
+    {
+      "referenceNumber": "REC-COURIER-003",
+      "lineItems": [
+        {
+          "sku": "WATCH-001",
+          "expectedQuantity": 3
+        }
+      ],
+      "transferType": "CarriageTransfer",
+      "carriageTransfer": {
+        "shipmentDate": "2025-06-17T16:00:00.000Z",
+        "carriageCompanyName": "Express Courier",
+        "waybillNumber": "EX123456789"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Multi-Product Bulk Shipment">
+    Large apparel shipment with multiple SKUs and sizes.
+    
+    ```json filename="bulk-receiving-order.json"
+    {
+      "referenceNumber": "REC-MULTI-004",
+      "lineItems": [
+        {
+          "sku": "TSHIRT-S",
+          "expectedQuantity": 20
+        },
+        {
+          "sku": "TSHIRT-M",
+          "expectedQuantity": 25
+        },
+        {
+          "sku": "TSHIRT-L",
+          "expectedQuantity": 15
+        },
+        {
+          "sku": "JEANS-30",
+          "expectedQuantity": 10
+        },
+        {
+          "sku": "JEANS-32",
+          "expectedQuantity": 12
+        }
+      ],
+      "transferType": "CargoTransfer",
+      "cargoTransfer": {
+        "shipmentDate": "2025-06-19T10:00:00.000Z",
+        "cargoCompanyName": "UPS",
+        "trackingNumber": "UPS987654321"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Pre-Registration" icon="check-double">
+    Always register products in the system before creating receiving orders
+  </Card>
+  <Card title="Reference Tracking" icon="barcode-read">
+    Use meaningful reference numbers for easy tracking and identification
+  </Card>
+  <Card title="Date Planning" icon="calendar-check">
+    Schedule dates within business hours and follow timezone requirements
+  </Card>
+  <Card title="Quantity Monitoring" icon="chart-line-up">
+    Track expected vs accepted quantities using GET API calls
+  </Card>
+</CardGroup>
+
+<Tip>
+  With this endpoint, you can pre-notify products to be sent to the warehouse, systematically manage the receiving process, and track inventory movements.
+</Tip>

@@ -1,0 +1,91 @@
+---
+title: 'Use Cases Overview'
+description: 'Comprehensive guide for OPLOG API use cases including products, receiving orders, and sales orders'
+icon: 'book-open'
+---
+
+# OPLOG API - Use Cases
+
+OPLOG's API suite enables you to manage your entire e-commerce workflow from product catalog to order fulfillment. This section provides comprehensive examples and best practices for different integration scenarios.
+
+## Basic Requirements
+
+All orders require these mandatory fields:
+
+- **Reference Number**: Unique identifier (max 30 characters, no "_" characters)
+- **Sales Channel**: Channel where order was placed (e.g., "Trendyol", "Web")
+- **Customer Email**: Must be unique in the system
+- **Customer Information**: firstName, lastName, phone (with country code)
+- **Shipping Address**: Complete address with required fields
+- **Line Items**: Product details with amountInOrder, sku, and currency
+
+## Address Requirements
+
+### Turkey
+- City and district fields must use specified values
+- Phone numbers must start with country code
+
+### International
+- Postal code is mandatory for addresses outside Turkey
+- Address fields support ISO 19160 format
+
+## Payment Options
+
+- **Paid**: Pre-paid orders
+- **CreditCard**: Credit card payments
+- **Cash**: Cash on Delivery (COD) orders
+
+For COD orders, `totalPaymentAmount` is mandatory and must be accurate.
+
+## Cargo Types
+
+- **RegularDelivery**: Standard shipping for Marketplace and WEB orders
+- **SamedayDelivery**: Same-day delivery for WEB orders received by 09:00 UTC+0
+- **ManualDelivery**: Direct courier delivery for orders that cannot go through cargo companies
+
+## Value Added Services (VAS)
+
+- **Gift Wrapping**: Set `giftWrap: true` with single-line `giftNotes`
+- **Document VAS**: Requires publicly downloadable PDF format link
+
+## Currency Support
+
+The API supports ISO 4217 currency codes including TRY, USD, EUR, GBP, and many others. Currency is mandatory for:
+- Orders from Turkey to international destinations
+- COD orders
+
+## Date Format
+
+All date fields use ISO 8601 format in UTC+0.
+
+## Use Case Examples
+
+<Card title="Standard E-commerce Order" icon="shopping-cart" href="/use-cases/standard-order">
+  Basic online store order with standard shipping
+</Card>
+
+<Card title="Cash on Delivery (COD)" icon="money-bill" href="/use-cases/cod-order">
+  Orders with cash payment on delivery
+</Card>
+
+<Card title="Marketplace Order" icon="store" href="/use-cases/marketplace-order">
+  Orders from marketplace platforms with shipping information
+</Card>
+
+<Card title="Corporate Order" icon="building" href="/use-cases/corporate-order">
+  B2B orders with tax information and company details
+</Card>
+
+<Card title="International Order" icon="globe" href="/use-cases/international-order">
+  Cross-border orders with international shipping
+</Card>
+
+<Card title="Gift Order with VAS" icon="gift" href="/use-cases/gift-order">
+  Orders with gift wrapping and value-added services
+</Card>
+
+## Error Handling
+
+If mandatory fields are missing or contain invalid values, the API returns `404 - Not Found` with a descriptive error message.
+
+Orders may be moved to the Blocked tab due to insufficient stock without a different API response.
