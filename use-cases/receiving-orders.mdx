@@ -3,8 +3,6 @@ title: 'Receiving Orders'
 description: 'Create and manage receiving orders using OPLOG Receiving Orders API'
 ---
 
-# Receiving Orders
-
 OPLOG's [Receiving Order API](../api-reference/receiving-orders) enables you to initiate the receiving process for products to be sent to the warehouse. This guide covers the essential requirements, configurations, and examples for creating different types of receiving orders.
 
 ## Integration Overview
@@ -369,23 +367,38 @@ OPLOG's [Receiving Order POST endpoint](../api-reference/receiving-orders#create
 
 ---
 
-## Best Practices
+## TAG Management
+
+OPLOG.ONE's TAG management system provides flexible metadata tagging capabilities across various business entities. Organizations can attach custom labels to records, transforming basic data into actionable intelligence for better workflow optimization.
+
+The system proves valuable for both operational efficiency and analytics. Teams can quickly identify and process records based on specific criteria - staff can locate items requiring special handling, managers can prioritize high-value transactions, and leadership can analyze performance metrics across different categories. This flexible approach eliminates rigid classification systems, allowing businesses to evolve their tagging strategies as operational needs change.
+
+
+### TAG Best Practices for Receiving Orders
 
 <CardGroup cols={2}>
-  <Card title="Pre-Registration" icon="check-double">
-    Always register products in the system before creating receiving orders
+  <Card title="Priority Level" icon="exclamation">
+    Tag by urgency: `urgent`, `high-priority`, `standard`, `low-priority`
   </Card>
-  <Card title="Reference Tracking" icon="barcode-read">
-    Use meaningful reference numbers for easy tracking and identification
+  <Card title="Supplier Category" icon="truck">
+    Categorize suppliers: `priority-supplier`, `new-vendor`, `overseas`
   </Card>
-  <Card title="Date Planning" icon="calendar-check">
-    Schedule dates within business hours and follow timezone requirements
+  <Card title="Product Type" icon="boxes">
+    Mark product categories: `seasonal-stock`, `electronics`, `fragile`
   </Card>
-  <Card title="Quantity Monitoring" icon="chart-line-up">
-    Track expected vs accepted quantities using GET API calls
+  <Card title="Processing Notes" icon="clipboard-list">
+    Add handling instructions: `quality-check`, `immediate-shelving`
   </Card>
 </CardGroup>
 
-<Tip>
-  With this endpoint, you can pre-notify products to be sent to the warehouse, systematically manage the receiving process, and track inventory movements.
-</Tip>
+**TAG Usage Examples:**
+- **Priority Tags**: `urgent,high-priority,critical-stock,emergency`
+- **Seasonal Tags**: `summer-collection,winter-stock,holiday-items`
+- **Supplier Tags**: `priority-supplier,new-vendor,trusted-partner`
+- **Product Tags**: `fragile,electronics,apparel,bulk-items`
+- **Process Tags**: `quality-check,immediate-processing,hold-for-review`
+
+<Info>
+TAG management for receiving orders helps streamline warehouse operations, supplier management, and inventory planning processes.
+</Info>
+

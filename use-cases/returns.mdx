@@ -3,54 +3,27 @@ title: 'Returns'
 description: 'Query and track return packages using OPLOG Returns API'
 ---
 
-# Returns
+OPLOG's [Returns API](../api-reference/returns) provides comprehensive return management capabilities for tracking and processing product returns. This guide covers the essential requirements, query methods, and examples for managing different types of return scenarios.
+
+## Integration Overview
+
+The Returns API is designed to handle the complete return lifecycle:
+- **Return Tracking** - Query return status and processing stages
+- **Warehouse Integration** - Real-time updates when packages arrive
+- **State Management** - Track returns from creation to completion
+- **Reference Matching** - Connect returns to original sales orders
+
+<Info>
+All return operations use GET endpoints since the return process begins when packages physically arrive at the warehouse. The system tracks real-world return events and provides query capabilities for status monitoring.
+</Info>
+
+## Return Process Flow
 
 <Note>
 **Important Note: Return Endpoint Usage**
 
 In the OPLOG system, in real life, the return process begins when the package physically arrives at the warehouse. Therefore, the GET endpoint should be used for return operations.
 </Note>
-
-## GET Returns API - Basic Usage
-
-With OPLOG's Returns GET endpoint, you can query and track the status of return packages that arrive at the warehouse. The return process works as follows:
-
-1. Package arrives at the warehouse
-2. Warehouse staff registers the package in the system
-3. You query return information with the GET endpoint
-
-## Return States
-
-The return process follows these states:
-
-- **ReturnCreated**: Return record created
-- **ArrivedToWarehouse**: Package arrived at warehouse  
-- **Completed**: Return process completed
-
-## Important Notes
-
-<CardGroup cols={2}>
-  <Card title="Use GET Endpoint" icon="magnifying-glass">
-    For querying actual return statuses
-  </Card>
-  <Card title="State Tracking" icon="list-check">
-    Track which stage the return process is in
-  </Card>
-  <Card title="Notes Field" icon="note-sticky">
-    Give operational notes if exist
-  </Card>
-  <Card title="Tracking ID" icon="barcode">
-    Returns can be matched with cargo tracking numbers
-  </Card>
-</CardGroup>
-
-<Tip>
-**Date Format**: All dates are in ISO 8601 format
-</Tip>
-
-This approach is compatible with the real-world return process and provides a more reliable and trackable system.
-
-## Return Process Flow
 
 <Steps>
   <Step title="ReturnCreated (Return Created)">
@@ -70,9 +43,29 @@ This approach is compatible with the real-world return process and provides a mo
   </Step>
 </Steps>
 
-## GET Endpoint Use Cases
+## Return States
 
-### 1. Return Query
+The return process follows these states:
+
+<CardGroup cols={3}>
+  <Card title="ReturnCreated" icon="plus">
+    Return record created in the system
+  </Card>
+  <Card title="ArrivedToWarehouse" icon="warehouse">
+    Package arrived at warehouse facility
+  </Card>
+  <Card title="Completed" icon="check">
+    Return process completed successfully
+  </Card>
+</CardGroup>
+
+## Query Methods
+
+<Warning>
+  For querying actual return statuses, always use the GET endpoint as returns are processed based on physical package arrivals.
+</Warning>
+
+### Basic Return Query
 
 Query all returns in the system:
 
@@ -101,7 +94,7 @@ GET /openapi/v1/Returns
 ```
 </Accordion>
 
-### 2. Query by Sales Order Reference
+### Query by Sales Order Reference
 
 Find returns for a specific sales order:
 
@@ -142,7 +135,7 @@ GET /openapi/v1/Returns?salesOrderReferenceNumber=RSO100490909
 ```
 </Accordion>
 
-### 3. Query by Return Reference Number
+### Query by Return Reference Number
 
 Find a specific return by its reference number:
 
@@ -150,69 +143,15 @@ Find a specific return by its reference number:
 GET /openapi/v1/Returns?returnReferenceNumber=Return-14844
 ```
 
-<Accordion title="Example Response">
-```json
-{
-  "items": [
-    {
-      "source": "WMS",
-      "returnReferenceNumber": "Return-14844",
-      "salesOrderReferenceNumber": "RSO100490909",
-      "notes": "Customer didn't like the product",
-      "state": "Completed",
-      "trackingId": "1201450414625470014100902000010011",
-      "createdAt": "2024-02-23T11:11:18.810942Z",
-      "updatedAt": "2024-02-23T11:11:29.046892Z",
-      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
-      "completedAt": "2024-02-23T11:11:29.021256Z"
-    }
-  ]
-}
-```
-</Accordion>
+### Query by State
 
-### 4. Query Pending Returns (State-based Query)
-
-Find returns that are waiting for processing:
+Find returns in a specific processing state:
 
 ```bash
 GET /openapi/v1/Returns?state=ArrivedToWarehouse
 ```
 
-<Accordion title="Example Response">
-```json
-{
-  "items": [
-    {
-      "source": "WMS",
-      "returnReferenceNumber": "Return-14851",
-      "salesOrderReferenceNumber": "RSO100490920",
-      "notes": "Size issue",
-      "state": "ArrivedToWarehouse",
-      "trackingId": "1201450414625470014100902000010025",
-      "createdAt": "2024-02-23T16:45:30.810942Z",
-      "updatedAt": "2024-02-23T16:45:30.810942Z",
-      "arrivedToWarehouseAt": "2024-02-23T16:45:30.810998Z",
-      "completedAt": null
-    },
-    {
-      "source": "WMS",
-      "returnReferenceNumber": "Return-14852",
-      "salesOrderReferenceNumber": "RSO100490921",
-      "notes": "Color not preferred",
-      "state": "ArrivedToWarehouse",
-      "trackingId": "1201450414625470014100902000010026",
-      "createdAt": "2024-02-23T17:20:15.810942Z",
-      "updatedAt": "2024-02-23T17:20:15.810942Z",
-      "arrivedToWarehouseAt": "2024-02-23T17:20:15.810998Z",
-      "completedAt": null
-    }
-  ]
-}
-```
-</Accordion>
-
-### 5. Query by Tracking ID
+### Query by Tracking ID
 
 Find a return using its tracking ID:
 
@@ -220,45 +159,58 @@ Find a return using its tracking ID:
 GET /openapi/v1/Returns?trackingId=1201450414625470014100902000010011
 ```
 
-<Accordion title="Example Response">
-```json
-{
-  "items": [
-    {
-      "source": "WMS",
-      "returnReferenceNumber": "Return-14844",
-      "salesOrderReferenceNumber": "RSO100490909",
-      "notes": "Customer didn't like the product",
-      "state": "Completed",
-      "trackingId": "1201450414625470014100902000010011",
-      "createdAt": "2024-02-23T11:11:18.810942Z",
-      "updatedAt": "2024-02-23T11:11:29.046892Z",
-      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
-      "completedAt": "2024-02-23T11:11:29.021256Z"
-    }
-  ]
-}
-```
-</Accordion>
-
-## Practical Query Examples
+## Response Fields
 
 <AccordionGroup>
-  <Accordion icon="headset" title="For Customer Service">
+  <Accordion title="Core Fields">
+    **source** - System source identifier (typically "WMS")
+    
+    **returnReferenceNumber** - Unique return identifier
+    
+    **salesOrderReferenceNumber** - Original order reference
+    
+    **state** - Current processing state
+    
+    **trackingId** - Cargo tracking number for return shipment
+  </Accordion>
+  
+  <Accordion title="Timestamps">
+    **createdAt** - Return record creation time
+    
+    **updatedAt** - Last modification time
+    
+    **arrivedToWarehouseAt** - When package arrived at warehouse
+    
+    **completedAt** - When return processing completed
+  </Accordion>
+  
+  <Accordion title="Additional Information">
+    **notes** - Operational notes about the return reason
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+**Date Format**: All dates are in ISO 8601 format with timezone information.
+</Tip>
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion icon="headset" title="Customer Service">
     ```bash
     GET /openapi/v1/Returns?salesOrderReferenceNumber=RSO100490909
     ```
     To check the return status of a specific order.
   </Accordion>
 
-  <Accordion icon="warehouse" title="For Warehouse Management">
+  <Accordion icon="warehouse" title="Warehouse Management">
     ```bash
     GET /openapi/v1/Returns?state=ArrivedToWarehouse
     ```
     To see returns waiting for processing.
   </Accordion>
 
-  <Accordion icon="chart-bar" title="For Reporting">
+  <Accordion icon="chart-bar" title="Reporting">
     ```bash
     GET /openapi/v1/Returns?state=Completed&createdAt=gte:2024-02-23
     ```
@@ -266,11 +218,38 @@ GET /openapi/v1/Returns?trackingId=1201450414625470014100902000010011
   </Accordion>
 </AccordionGroup>
 
-## Best Practices
+---
+
+## TAG Management
+
+OPLOG.ONE's TAG management system provides flexible metadata tagging capabilities across various business entities. Organizations can attach custom labels to records, transforming basic data into actionable intelligence for better workflow optimization.
+
+The system proves valuable for both operational efficiency and analytics. Teams can quickly identify and process records based on specific criteria - staff can locate items requiring special handling, managers can prioritize high-value transactions, and leadership can analyze performance metrics across different categories. This flexible approach eliminates rigid classification systems, allowing businesses to evolve their tagging strategies as operational needs change.
+
+### TAG Best Practices for Returns
+
+<CardGroup cols={2}>
+  <Card title="Return Reason" icon="question-circle">
+    Tag by reason: `defective`, `wrong-size`, `customer-change`, `damaged`
+  </Card>
+  <Card title="Processing Priority" icon="flag">
+    Mark urgency: `urgent-refund`, `priority-return`, `standard`
+  </Card>
+  <Card title="Product Category" icon="box">
+    Categorize items: `electronics`, `apparel`, `fragile`, `bulk-return`
+  </Card>
+  <Card title="Action Required" icon="tasks">
+    Next steps: `refund-pending`, `exchange-requested`, `investigate`
+  </Card>
+</CardGroup>
+
+**TAG Usage Examples:**
+- **Reason Tags**: `defective-product,wrong-size,customer-dissatisfaction,damaged-shipping`
+- **Priority Tags**: `urgent-refund,priority-return,vip-customer,high-value`
+- **Category Tags**: `electronics,apparel,cosmetics,books,fragile-item`
+- **Process Tags**: `quality-check-required,refund-approved,exchange-pending`
+- **Analysis Tags**: `frequent-returner,seasonal-return,promotion-related`
 
 <Info>
-- Always check the `state` field to understand the current status of a return
-- Use the `notes` field to provide context about return reasons
-- Monitor `arrivedToWarehouseAt` and `completedAt` timestamps for processing time analysis
-- Combine filters to create specific queries for your operational needs
+TAG management for returns enables detailed return analysis, automated workflows, and improved customer service through categorized processing.
 </Info>

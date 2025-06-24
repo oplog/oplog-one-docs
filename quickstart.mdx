@@ -1,28 +1,26 @@
 ---
 title: 'Quickstart'
-description: 'Get started with oplog.one API in minutes'
+description: 'Get started with OPLOG.ONE API in minutes'
 ---
 
-# Quickstart
-
-This quickstart guide intends to walk you through a few common scenarios to let you understand how to use the oplog.one API.
+This quickstart guide intends to walk you through a few common scenarios to let you understand how to use the OPLOG.ONE API.
 
 ## 1. Get API key
 
-Oplog.one verifies a user's request by using a Bearer token in the header. We call this a Personal Access Token.
+OPLOG.ONE verifies a user's request by using a Bearer token in the header. We call this a Personal Access Token.
 
-On the oplog.one dashboard, go to **Settings** > **API Tokens**. Click Generate New Token. Copy this token as we will use in next step. If you do not have an oplog.one account yet, you can create a sandbox account by contacting our support team.
+On the OPLOG.ONE dashboard, go to **Settings** > **API Tokens**. Click Generate New Token. Copy this token as we will use in next step. If you do not have an OPLOG.ONE account yet, you can create a sandbox account by contacting our support team.
 
 ## 2. Make your first API request
 
-Use your PAT token to make a request to the [GET Channels](http://localhost:7701/api/v1/channels) endpoint. You will need the channel ID to create cargo carriers, customers and products with the oplog.one API.
+Use your PAT token to make a request to the [GET Channels](http://localhost:7701/api/v1/channels) endpoint. You will need the channel ID to create cargo carriers, customers and products with the OPLOG.ONE API.
 
 ```
 GET http://localhost:7701/api/v1/channels
 ```
 
 <Tip>
-  If you are using an oplog.one sandbox account, make sure to update your endpoint to the sandbox URL provided by our team.
+  If you are using an OPLOG.ONE sandbox account, make sure to update your endpoint to the sandbox URL provided by our team.
 </Tip>
 
 <Accordion title="Example response">
@@ -47,8 +45,8 @@ GET http://localhost:7701/api/v1/channels
     },
     {
         "id": 100101,
-        "name": "Oplog.one Default",
-        "application_name": "Oplog.one",
+        "name": "OPLOG.ONE Default",
+        "application_name": "OPLOG.ONE",
         "scopes": [
             "cargo_carriers_read",
             "customers_read",
@@ -62,7 +60,7 @@ GET http://localhost:7701/api/v1/channels
 
 ## 3. Common scenarios
 
-A few common scenarios to get started with the oplog.one API. All endpoints are only accessible via `HTTPS`.
+A few common scenarios to get started with the OPLOG.ONE API. All endpoints are only accessible via `HTTPS`.
 
 <AccordionGroup>
   <Accordion title="Create cargo carrier">
@@ -117,7 +115,7 @@ A few common scenarios to get started with the oplog.one API. All endpoints are 
     Here is a sample request to create a product in your inventory:
 
     <Note>
-      When you create products with the oplog.one API, make sure to pass the `oplog_channel_id` in the header.
+      When you create products with the OPLOG.ONE API, make sure to pass the `oplog_channel_id` in the header.
     </Note>
 
     <CodeGroup>
@@ -148,7 +146,7 @@ A few common scenarios to get started with the oplog.one API. All endpoints are 
 
 ## 4. Use Cases
 
-Get started with the oplog.one API with detailed guides for your use case.
+Get started with the OPLOG.ONE API with detailed guides for your use case.
 
 <CardGroup cols="2">
   <Card title="Manage Cargo Carriers" icon="truck" href="/use-cases/cargo-carriers">

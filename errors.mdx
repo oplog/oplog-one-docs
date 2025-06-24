@@ -1,43 +1,254 @@
 ---
 title: 'Errors'
-description: 'Understanding HTTP response codes and error handling in oplog.one API'
+description: 'Understanding HTTP response codes and error handling in OPLOG.ONE API'
 ---
 
-# Errors
+> In the events of API request errors, OPLOG.ONE uses conventional HTTP response codes in the 4XX and 5XX range to indicate the reason behind the error.
 
-> In the events of API request errors, oplog.one uses conventional HTTP response codes in the 4XX and 5XX range to indicate the reason behind the error.
-
-Oplog.one uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the 2xx range indicate success, codes in the 4xx range indicate an error that resulted from the provided information (e.g. a required parameter was missing, a duplicate reference ID already exists, etc.), and codes in the 5xx range indicate an error with oplog.one's servers.
+OPLOG.ONE uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the 2xx range indicate success, codes in the 4xx range indicate an error that resulted from the provided information (e.g. a required parameter was missing, a duplicate reference ID already exists, etc.), and codes in the 5xx range indicate an error with OPLOG.ONE's servers.
 
 ## HTTP Status Codes
 
-| HTTP Status Code | Status                 | Description                                                                                      |
-| :--------------- | ---------------------- | ------------------------------------------------------------------------------------------------ |
-| 200 or 201       | OK                     | Everything worked as expected.                                                                   |
-| 400              | Bad Request            | The request was unacceptable, often due to missing a required parameter.                        |
-| 401              | Unauthorized           | No valid API key provided.                                                                       |
-| 403              | Forbidden              | The API key doesn't have permissions to perform the request.                                     |
-| 404              | Not Found              | The requested resource doesn't exist.                                                            |
-| 422              | Duplicate reference ID | You have already created a product or order with the same `reference_id`                        |
-| 429              | Too Many Requests      | Too many requests hit the API too quickly. We recommend an exponential backoff of your requests.|
-| 500, 502, 503, 504 | Server Errors       | Something went wrong on oplog.one's end.                                                        |
+| Status Code | Description |
+|:------------|:------------|
+| **2xx Success** | |
+| 200 OK | Request succeeded |
+| 201 Created | Resource successfully created |
+| **4xx Client Error** | |
+| 400 Bad Request | Invalid request format or parameters |
+| 401 Unauthorized | Invalid API key or authentication |
+| 404 Not Found | Resource not found |
+| 429 Too Many Requests | Rate limit exceeded |
+| **5xx Server Error** | |
+| 500 Internal Server Error | Something went wrong on OPLOG.ONE's end |
+| 502 Bad Gateway | Temporary server issue |
+| 503 Service Unavailable | Service temporarily unavailable |
+
+---
+
+# OPLOG Error Code Reference
+
+Here you will find the error codes and descriptions you may encounter during various operations in the OPLOG API. Error codes are categorized by operation type.
+
+## Error Code Usage Tips
+
+### General Rules
+- **Required Fields**: Related error codes are returned for required fields left empty
+- **Format Checks**: Field name and expected format are specified for invalid format errors
+- **Character Limits**: Maximum character limits are defined for each field
+- **Uniqueness**: SKU, Barcode, and Reference numbers must be unique
+
+---
+
+## General Error Codes
+
+Error codes you may encounter in general system and integration errors:
+
+### System Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| UnhandledException | An unexpected error occurred. Please contact your customer representative. | 25 |
+| Unknown | An unknown error occurred. Please contact your customer representative. | 6 |
+| MaestroPackageCancelSyncFailed | Error occurred in Maestro package cancellation synchronization. | 7 |
+
+### Integration Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| UpdateFromDifferentIntegration | The request cannot be edited outside of its source. | 26 |
+| EmptyIntegrationId | IntegrationId field has been sent empty. | 55 |
+| IntegrationIsNotActive | The integration you are sending requests to is not active. You can activate it from the integrations page. | 84 |
+
+### Resource and URL Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| ResourceAlreadyExists | Resource is already in use. | 0 |
+| ResourceNotFound | Resource not found. | 1 |
+| InvalidContentType | Invalid field type | 2 |
+| InvalidUrl | Contains invalid URL. | 48 |
+
+---
+
+## Sales Order Error Codes
+
+Error codes you may encounter during order creation, update, and management operations:
+
+### Reference Number Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| ReferenceNumberAlreadyExists | Reference number must be unique. | 0 |
+| ReferenceNumberTooLong | Reference number exceeds character limit. | 27 |
+| InvalidSalesOrderReferenceNumber | Sales order reference number has been sent in an invalid format. | 33 |
+
+### Address Validation Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| EmptyAddressFirstName | AddressFirstName field is required. | 1 |
+| EmptyAddressLastName | AddressLastName field is required. | 2 |
+| EmptyAddressPhone | AddressPhone field is required. | 3 |
+| EmptyAddressOne | AddressOne field is required. | 4 |
+| EmptyAddressCity | AddressCity field is required. | 5 |
+| EmptyAddressPostalCode | AddressPostalCode is required for orders from TR to abroad and foreign warehouse orders. | 6 |
+| EmptyAddressCountry | AddressCountry field is required. | 7 |
+| InvalidCountry | Contains invalid country name. | 45 |
+| InvalidCity | Contains invalid city name. | 46 |
+| InvalidDistrict | Contains invalid district name. | 47 |
+| InvalidAddress | Address contains invalid format. | 49 |
+
+### Address Character Limit Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| AddressFirstNameMaxLength | Address first name field exceeds character limit. | 68 |
+| AddressLastNameMaxLength | Address last name field exceeds character limit. | 69 |
+| AddressPhoneMaxLength | Address phone field exceeds character limit. | 70 |
+| AddressEmailMaxLength | Address email field exceeds character limit. | 71 |
+| AddressOneMaxLength | AddressOne field exceeds character limit. | 72 |
+| AddressTwoMaxLength | AddressTwo field exceeds character limit. | 73 |
+| AddressDistrictMaxLength | AddressDistrict field exceeds character limit. | 74 |
+| AddressPostalCodeMaxLength | AddressPostalCode field exceeds character limit. | 75 |
+| AddressCityMaxLength | AddressCity field exceeds character limit. | 76 |
+| AddressCountryMaxLength | AddressCountry field exceeds character limit. | 77 |
+
+### Customer Information Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| EmptyCustomerFirstName | CustomerFirstName field is required. | 8 |
+| EmptyCustomerLastName | CustomerLastName field is required. | 9 |
+| EmptyCustomerPhone | CustomerPhone field is required. | 10 |
+| CustomerEmailWrongFormat | Email has been formatted incorrectly. | 11 |
+
+### Product and Quantity Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| EmptyLineItemSku | SKU in product information cannot be sent empty. | 12 |
+| LineItemQuantityError | Quantity information must be a positive integer. | 13 |
+| LineItemNotFound | Product definition not found. | 14 |
+| SalesOrderHasLineItemsWithSameSku | There are duplicate SKUs in order LineItems. Sum up the Amount quantities for duplicate SKUs. | 28 |
+
+### Payment Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| EmptySalesOrderPaymentCurrency | Currency is required for orders from TR to abroad and foreign warehouse orders. | 15 |
+| EmptySalesOrderPaymentTotalPaymentAmount | Currency amount is required for orders from TR to abroad and foreign warehouse orders. | 16 |
+| UnsupportedCurrency | Contains unsupported currency. | 22 |
+| InvalidCodReceiptTotalAmount | Cash on delivery amount has been sent in invalid format. | 78 |
+
+### CoD (Cash on Delivery) Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| EmptyCoDKey | The CoD key you specified is empty or incorrect. | 17 |
+| EmptyOrMultipleCodKey | The specified CoD Key is empty or incorrect. | 18 |
+| CoDKeysNotEqualToPaymentGateway | The specified CoD Key is empty or incorrect. | 19 |
+| SalesOrderPaidWhenCoDKeysExist | PaymentType is empty or CoD key is incorrect. | 20 |
+| SalesOrderNotPaidWhenCoDPassive | PaymentType Paid was not sent while cash on delivery feature is not active. | 21 |
+| MarketplaceNoCoD | CoD is not supported for marketplace orders. | 79 |
+
+### Cargo Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| CargoCarrierNotFound | Cargo carrier is not defined. Please get the current cargo list via CargoCarriers endpoint. | 32 |
+| CargoCodeAndCargoDocumentUrlCannotBeNullOrEmpty | Cargo code and cargo document URL cannot be empty. | 60 |
+| SalesOrderDoesNotSupportCargoInfoUpdate | Order does not support cargo information updates. | 62 |
+
+### Same Day Delivery Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| CargoDocumentURLAndCargoCodeShouldBeEmptyWhenCargoTypeIsSameDayDelivery | CargoDocumentURL and CargoCode should be empty for SameDayDelivery delivery type. | 44 |
+| SameDayDeliveryNotEnabled | Same Day Delivery is not active. Please contact your customer representative. | 57 |
+| OutOfCoverageSameDayDelivery | A city outside the cities supporting Same Day Delivery has been sent. | 58 |
+
+### Gift and Additional Services
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| GiftWrapType | Gift note was sent with a value other than true/false. | 51 |
+| GiftNotesTooLong | 2000 character limit exceeded. | 52 |
+
+### Order Status Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| CancelledSalesOrder | Cannot perform operations on cancelled order. | 61 |
+| DeliveredSalesOrder | Cannot make changes on delivered order. | 63 |
+
+---
+
+## Receiving Order Error Codes
+
+Error codes you may encounter during receiving operations:
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| InvalidReceivingOrderReferenceNumber | Receiving order reference number has been sent in an invalid format. | 34 |
+| EmptyReceivingOrderShipmentDate | Receiving order ShipmentDate has been sent empty. | 38 |
+| InvalidReceivingOrderShipmentDate | Receiving order ShipmentDate has been sent in invalid format. | 39 |
+| ReceivingOrderExpectedDeliveryDateEmpty | ExpectedDeliveryDate has been sent empty in receiving order request. | 42 |
+| ReceivingOrderTransferTypeEmpty | Receiving order TransferType field has been sent empty. | 59 |
+| ReceivingOrderTransferTypeTransferDetailsMismatch | Transfer type and transfer details do not match. | 67 |
+
+---
+
+## Product Error Codes
+
+Error codes you may encounter during product definition and management operations:
+
+### SKU and Barcode Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| ProductSKUAlreadyExists | SKU has been used before among product definitions. SKU must be unique when defining products. | 0 |
+| ProductBarcodeAlreadyExists | Barcode has been used before among product definitions. Barcode must be unique when defining products. | 1 |
+| SameBarcodeForDifferentSkusAtBarcodesSheetError | Barcode is defined on another SKU. Barcode must be unique when defining products. | 2 |
+| ProductSKUAlreadyExists | SKU information is being used. SKU must be unique. | 37 |
+
+### Required Field Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| ProductSKUIsEmpty | SKU field cannot be empty when defining products. | 3 |
+| ProductBarcodeIsEmpty | Barcode field cannot be empty when defining products. | 4 |
+| ProductNameIsEmpty | Name field cannot be empty when defining products. | 5 |
+
+### Product Management Errors
+
+| Error Code | Description | Error ID |
+|:-----------|:------------|:---------|
+| ProductNotFound | The queried product was not found in our product definition query. | 7 |
+| SalesUrlIsNotValid | SalesUrl field in product definition is not valid. | 8 |
+| BarcodeCantBeChanged | Barcode defined in product definition cannot be changed. | 11 |
+
+---
 
 ## Error Response Format
 
-When an error occurs, oplog.one returns a JSON response with error details:
+When an error occurs, OPLOG.ONE returns a structured error response:
 
 ```json
 {
-  "error": {
-    "code": "INVALID_PARAMETER",
-    "message": "The 'sku' parameter is required",
-    "details": {
-      "field": "sku",
-      "value": null
+  "statusCode": 400,
+  "message": "Validation failed",
+  "errors": [
+    {
+      "errorCode": "EmptyAddressFirstName",
+      "errorId": 1,
+      "message": "AddressFirstName field is required.",
+      "field": "shippingAddress.addressFirstName"
     }
-  },
-  "timestamp": "2024-06-24T10:30:00Z",
-  "request_id": "req_1234567890"
+  ]
 }
 ```
 
+<Info>
+**Error Handling Best Practice**: Always check the `errorCode` and `errorId` fields to programmatically handle specific error scenarios in your application.
+</Info>
