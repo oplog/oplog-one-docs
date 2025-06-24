@@ -1,0 +1,276 @@
+---
+title: 'Returns'
+description: 'Query and track return packages using OPLOG Returns API'
+---
+
+# Returns
+
+<Note>
+**Important Note: Return Endpoint Usage**
+
+In the OPLOG system, in real life, the return process begins when the package physically arrives at the warehouse. Therefore, the GET endpoint should be used for return operations.
+</Note>
+
+## GET Returns API - Basic Usage
+
+With OPLOG's Returns GET endpoint, you can query and track the status of return packages that arrive at the warehouse. The return process works as follows:
+
+1. Package arrives at the warehouse
+2. Warehouse staff registers the package in the system
+3. You query return information with the GET endpoint
+
+## Return States
+
+The return process follows these states:
+
+- **ReturnCreated**: Return record created
+- **ArrivedToWarehouse**: Package arrived at warehouse  
+- **Completed**: Return process completed
+
+## Important Notes
+
+<CardGroup cols={2}>
+  <Card title="Use GET Endpoint" icon="magnifying-glass">
+    For querying actual return statuses
+  </Card>
+  <Card title="State Tracking" icon="list-check">
+    Track which stage the return process is in
+  </Card>
+  <Card title="Notes Field" icon="note-sticky">
+    Give operational notes if exist
+  </Card>
+  <Card title="Tracking ID" icon="barcode">
+    Returns can be matched with cargo tracking numbers
+  </Card>
+</CardGroup>
+
+<Tip>
+**Date Format**: All dates are in ISO 8601 format
+</Tip>
+
+This approach is compatible with the real-world return process and provides a more reliable and trackable system.
+
+## Return Process Flow
+
+<Steps>
+  <Step title="ReturnCreated (Return Created)">
+    - Warehouse staff requested a return
+    - `arrivedToWarehouseAt` and `completedAt` fields are null
+  </Step>
+  <Step title="ArrivedToWarehouse (Arrived at Warehouse)">
+    - Package arrived at warehouse
+    - Warehouse staff processed package entry
+    - `arrivedToWarehouseAt` field was populated
+    - Return processing started
+  </Step>
+  <Step title="Completed (Completed)">
+    - Return process completed
+    - Product was inspected and restocked/disposed
+    - `completedAt` field was populated
+  </Step>
+</Steps>
+
+## GET Endpoint Use Cases
+
+### 1. Return Query
+
+Query all returns in the system:
+
+```bash
+GET /openapi/v1/Returns
+```
+
+<Accordion title="Example Response">
+```json
+{
+  "items": [
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14844",
+      "salesOrderReferenceNumber": "RSO100490909",
+      "notes": "Product arrived damaged, customer dissatisfaction",
+      "state": "Completed",
+      "trackingId": "1201450414625470014100902000010011",
+      "createdAt": "2024-02-23T11:11:18.810942Z",
+      "updatedAt": "2024-02-23T11:11:29.046892Z",
+      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
+      "completedAt": "2024-02-23T11:11:29.021256Z"
+    }
+  ]
+}
+```
+</Accordion>
+
+### 2. Query by Sales Order Reference
+
+Find returns for a specific sales order:
+
+```bash
+GET /openapi/v1/Returns?salesOrderReferenceNumber=RSO100490909
+```
+
+<Accordion title="Example Response">
+```json
+{
+  "items": [
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14844",
+      "salesOrderReferenceNumber": "RSO100490909",
+      "notes": "",
+      "state": "Completed",
+      "trackingId": "1201450414625470014100902000010011",
+      "createdAt": "2024-02-23T11:11:18.810942Z",
+      "updatedAt": "2024-02-23T11:11:29.046892Z",
+      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
+      "completedAt": "2024-02-23T11:11:29.021256Z"
+    },
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14845",
+      "salesOrderReferenceNumber": "RSO100490909",
+      "notes": "Customer changed mind",
+      "state": "ArrivedToWarehouse",
+      "trackingId": "1201450414625470014100902000010012",
+      "createdAt": "2024-02-24T09:15:22.810942Z",
+      "updatedAt": "2024-02-24T09:15:22.810942Z",
+      "arrivedToWarehouseAt": "2024-02-24T09:15:22.810998Z",
+      "completedAt": null
+    }
+  ]
+}
+```
+</Accordion>
+
+### 3. Query by Return Reference Number
+
+Find a specific return by its reference number:
+
+```bash
+GET /openapi/v1/Returns?returnReferenceNumber=Return-14844
+```
+
+<Accordion title="Example Response">
+```json
+{
+  "items": [
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14844",
+      "salesOrderReferenceNumber": "RSO100490909",
+      "notes": "Customer didn't like the product",
+      "state": "Completed",
+      "trackingId": "1201450414625470014100902000010011",
+      "createdAt": "2024-02-23T11:11:18.810942Z",
+      "updatedAt": "2024-02-23T11:11:29.046892Z",
+      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
+      "completedAt": "2024-02-23T11:11:29.021256Z"
+    }
+  ]
+}
+```
+</Accordion>
+
+### 4. Query Pending Returns (State-based Query)
+
+Find returns that are waiting for processing:
+
+```bash
+GET /openapi/v1/Returns?state=ArrivedToWarehouse
+```
+
+<Accordion title="Example Response">
+```json
+{
+  "items": [
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14851",
+      "salesOrderReferenceNumber": "RSO100490920",
+      "notes": "Size issue",
+      "state": "ArrivedToWarehouse",
+      "trackingId": "1201450414625470014100902000010025",
+      "createdAt": "2024-02-23T16:45:30.810942Z",
+      "updatedAt": "2024-02-23T16:45:30.810942Z",
+      "arrivedToWarehouseAt": "2024-02-23T16:45:30.810998Z",
+      "completedAt": null
+    },
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14852",
+      "salesOrderReferenceNumber": "RSO100490921",
+      "notes": "Color not preferred",
+      "state": "ArrivedToWarehouse",
+      "trackingId": "1201450414625470014100902000010026",
+      "createdAt": "2024-02-23T17:20:15.810942Z",
+      "updatedAt": "2024-02-23T17:20:15.810942Z",
+      "arrivedToWarehouseAt": "2024-02-23T17:20:15.810998Z",
+      "completedAt": null
+    }
+  ]
+}
+```
+</Accordion>
+
+### 5. Query by Tracking ID
+
+Find a return using its tracking ID:
+
+```bash
+GET /openapi/v1/Returns?trackingId=1201450414625470014100902000010011
+```
+
+<Accordion title="Example Response">
+```json
+{
+  "items": [
+    {
+      "source": "WMS",
+      "returnReferenceNumber": "Return-14844",
+      "salesOrderReferenceNumber": "RSO100490909",
+      "notes": "Customer didn't like the product",
+      "state": "Completed",
+      "trackingId": "1201450414625470014100902000010011",
+      "createdAt": "2024-02-23T11:11:18.810942Z",
+      "updatedAt": "2024-02-23T11:11:29.046892Z",
+      "arrivedToWarehouseAt": "2024-02-23T11:11:18.810998Z",
+      "completedAt": "2024-02-23T11:11:29.021256Z"
+    }
+  ]
+}
+```
+</Accordion>
+
+## Practical Query Examples
+
+<AccordionGroup>
+  <Accordion icon="headset" title="For Customer Service">
+    ```bash
+    GET /openapi/v1/Returns?salesOrderReferenceNumber=RSO100490909
+    ```
+    To check the return status of a specific order.
+  </Accordion>
+
+  <Accordion icon="warehouse" title="For Warehouse Management">
+    ```bash
+    GET /openapi/v1/Returns?state=ArrivedToWarehouse
+    ```
+    To see returns waiting for processing.
+  </Accordion>
+
+  <Accordion icon="chart-bar" title="For Reporting">
+    ```bash
+    GET /openapi/v1/Returns?state=Completed&createdAt=gte:2024-02-23
+    ```
+    To report daily completed returns.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Info>
+- Always check the `state` field to understand the current status of a return
+- Use the `notes` field to provide context about return reasons
+- Monitor `arrivedToWarehouseAt` and `completedAt` timestamps for processing time analysis
+- Combine filters to create specific queries for your operational needs
+</Info>

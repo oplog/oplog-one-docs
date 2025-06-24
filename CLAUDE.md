@@ -8,15 +8,43 @@ This is a Mintlify documentation site for oplog.one (Omnitro OpenAPI). The proje
 
 ## Development Commands
 
-**Start development server:**
+**IMPORTANT: Node.js Version Requirement**
+This project requires Node.js v20.17.0 or higher. The project includes a `.nvmrc` file that specifies the required Node.js version, and the default has been set to v20.17.0 to ensure compatibility with Mintlify and Sharp dependencies.
+
+If you encounter Node.js version issues, run:
+```bash
+nvm use v20.17.0
+nvm alias default v20.17.0
+```
+
+The project will automatically use the correct Node.js version when you run `nvm use` in the project directory.
+
+**Start development server (local only):**
 ```bash
 mintlify dev
 ```
-This runs the docs site locally at `http://localhost:3000`
+This runs the docs site locally at `http://localhost:3000` (or next available port like 3001, 3002)
+
+**Start server on network (accessible from other devices):**
+```bash
+mintlify dev --host 0.0.0.0 --port 3000
+```
+This makes the docs site accessible from any device on your network at `http://YOUR_IP:3000`
+
+**Alternative: Use convenience scripts:**
+```bash
+./dev.sh
+```
+This script automatically ensures the correct Node.js version and starts the development server on the network.
+
+```bash
+./dev-network.sh
+```
+Enhanced network script that shows all available IP addresses and provides clear access instructions for other devices.
 
 **Start on custom port:**
 ```bash
-mintlify dev --port 3333
+mintlify dev --host 0.0.0.0 --port 3333
 ```
 
 **Install/reinstall dependencies:**
@@ -119,6 +147,46 @@ Navigation is defined in `docs.json` with:
 - Two-tab navigation: "Guides" and "API Reference"
 - OpenAPI integration for automatic endpoint documentation
 - MCP server configuration in `.cursor/mcp.json` for localhost:7701
+
+## Network Access
+
+### Accessing from Other Devices
+
+When running with `--host 0.0.0.0`, the documentation site becomes accessible from:
+
+- **Same computer**: `http://localhost:3000`
+- **Other devices on network**: `http://YOUR_IP_ADDRESS:3000`
+- **Mobile devices**: `http://YOUR_IP_ADDRESS:3000`
+- **Tablets/Laptops**: `http://YOUR_IP_ADDRESS:3000`
+
+### Finding Your IP Address
+
+**On macOS/Linux:**
+```bash
+ifconfig | grep "inet " | grep -v 127.0.0.1
+```
+
+**On Windows:**
+```bash
+ipconfig | findstr "IPv4"
+```
+
+### Firewall Considerations
+
+Make sure port 3000 (or your chosen port) is open in your firewall:
+
+**macOS:**
+- System Preferences > Security & Privacy > Firewall
+- Allow incoming connections for Node.js/Terminal
+
+**Windows:**
+- Windows Defender Firewall > Allow an app through firewall
+- Allow Node.js through the firewall
+
+**Linux:**
+```bash
+sudo ufw allow 3000
+```
 
 ## Prerequisites
 

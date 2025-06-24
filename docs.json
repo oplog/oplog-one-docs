@@ -18,16 +18,19 @@
             "pages": [
               "index",
               "quickstart",
+              "rate-limits",
+              "errors",
               "development"
             ]
           },
           {
             "group": "Use Cases",
             "pages": [
-              "use-cases/overview",
+              "use-cases/cargo-carriers",
               "use-cases/products",
               "use-cases/receiving-orders",
-              "use-cases/sales-orders"
+              "use-cases/sales-orders",
+              "use-cases/returns"
             ]
           }
         ]

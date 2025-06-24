@@ -1,0 +1,337 @@
+---
+title: 'Cargo Carriers'
+description: 'Manage cargo and shipping companies using OPLOG Cargo Carriers API'
+---
+
+# Cargo Carriers
+
+## What are CargoCarriers?
+
+**Definition**: Defines the cargo/shipping companies that OPLOG works with. Requests should be sent or read using these definitions.
+
+CargoCarriers represent the logistics partners and shipping companies integrated with the OPLOG platform. These entities are essential for managing shipments, tracking deliveries, and coordinating logistics operations.
+
+<Warning>
+**Important Notes**
+
+Since cargo companies can be updated, please make an API request for the current response to ensure you have the latest information.
+</Warning>
+
+## API Endpoint
+
+Get the list of available cargo carriers:
+
+```bash
+GET /openapi/v1/CargoCarriers
+```
+
+## Example Response
+
+<Accordion title="CargoCarriers API Response">
+```json
+{
+  "items": [
+    {
+      "key": "CARGO_CARRIER_001",
+      "value": "Express Logistics Ltd.",
+      "description": "Fast delivery service across Europe",
+      "active": true,
+      "supportedServices": ["standard", "express", "overnight"],
+      "coverage": ["domestic", "international"]
+    },
+    {
+      "key": "CARGO_CARRIER_002", 
+      "value": "Global Freight Solutions",
+      "description": "Worldwide shipping and freight services",
+      "active": true,
+      "supportedServices": ["standard", "freight", "bulk"],
+      "coverage": ["international", "air", "sea"]
+    },
+    {
+      "key": "CARGO_CARRIER_003",
+      "value": "Local Delivery Co.",
+      "description": "Regional delivery service",
+      "active": true,
+      "supportedServices": ["standard", "same-day"],
+      "coverage": ["domestic", "regional"]
+    }
+  ]
+}
+```
+</Accordion>
+
+## Response Fields
+
+<CardGroup cols={2}>
+  <Card title="key" icon="key">
+    **String** - Unique identifier for the cargo carrier. Use this value when making API requests.
+  </Card>
+  <Card title="value" icon="tag">
+    **String** - Human-readable display name of the cargo carrier for UI purposes.
+  </Card>
+  <Card title="description" icon="info">
+    **String** - Detailed description of the cargo carrier's services and capabilities.
+  </Card>
+  <Card title="active" icon="toggle-on">
+    **Boolean** - Indicates if the cargo carrier is currently active and available for use.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion icon="database" title="Cache the Response">
+    Store the cargo carriers list locally and refresh periodically to reduce API calls and improve performance.
+    
+    ```javascript
+    // Example caching strategy
+    const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+    let cargoCarriersCache = null;
+    let lastFetchTime = 0;
+
+    async function getCargoCarriers() {
+      const now = Date.now();
+      
+      if (!cargoCarriersCache || (now - lastFetchTime) > CACHE_DURATION) {
+        cargoCarriersCache = await fetchCargoCarriers();
+        lastFetchTime = now;
+      }
+      
+      return cargoCarriersCache;
+    }
+    ```
+  </Accordion>
+
+  <Accordion icon="key" title="Use Key Values">
+    Always use the "key" field when sending requests to other APIs for accurate carrier identification.
+    
+    ```javascript
+    // ✅ Correct - Use the key field
+    const selectedCarrier = "CARGO_CARRIER_001";
+    
+    // ❌ Incorrect - Don't use the display value
+    const selectedCarrier = "Express Logistics Ltd.";
+    ```
+  </Accordion>
+
+  <Accordion icon="eye" title="Display Values">
+    Use the "value" field for user-friendly display names in your application interface.
+    
+    ```javascript
+    // Display in dropdown/select
+    cargoCarriers.forEach(carrier => {
+      const option = document.createElement('option');
+      option.value = carrier.key;        // Use key for form value
+      option.textContent = carrier.value; // Use value for display
+      selectElement.appendChild(option);
+    });
+    ```
+  </Accordion>
+
+  <Accordion icon="refresh" title="Regular Updates">
+    Refresh your cargo carriers list regularly as new carriers may be added or existing ones may be updated.
+    
+    ```javascript
+    // Refresh strategy examples:
+    
+    // Option 1: Periodic refresh
+    setInterval(refreshCargoCarriers, 60 * 60 * 1000); // Every hour
+    
+    // Option 2: On application start
+    window.addEventListener('load', refreshCargoCarriers);
+    
+    // Option 3: Before critical operations
+    async function createShipment(data) {
+      await refreshCargoCarriers(); // Ensure latest data
+      // ... shipment creation logic
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Use Cases
+
+### 1. Populate Carrier Selection Dropdown
+
+Create a user interface element for carrier selection:
+
+```javascript
+async function populateCarrierDropdown() {
+  try {
+    const response = await fetch('/openapi/v1/CargoCarriers');
+    const data = await response.json();
+    
+    const selectElement = document.getElementById('carrier-select');
+    selectElement.innerHTML = '<option value="">Select a carrier...</option>';
+    
+    data.items
+      .filter(carrier => carrier.active) // Only show active carriers
+      .forEach(carrier => {
+        const option = document.createElement('option');
+        option.value = carrier.key;
+        option.textContent = carrier.value;
+        option.title = carrier.description; // Tooltip with description
+        selectElement.appendChild(option);
+      });
+  } catch (error) {
+    console.error('Failed to load cargo carriers:', error);
+  }
+}
+```
+
+### 2. Validate Carrier Selection
+
+Ensure the selected carrier is valid and active:
+
+```javascript
+async function validateCarrierSelection(carrierKey) {
+  const carriers = await getCargoCarriers();
+  const carrier = carriers.items.find(c => c.key === carrierKey);
+  
+  if (!carrier) {
+    throw new Error('Invalid cargo carrier selected');
+  }
+  
+  if (!carrier.active) {
+    throw new Error('Selected cargo carrier is not currently active');
+  }
+  
+  return carrier;
+}
+```
+
+### 3. Display Carrier Information
+
+Show detailed carrier information to users:
+
+```javascript
+function displayCarrierInfo(carrierKey) {
+  const carrier = cargoCarriers.find(c => c.key === carrierKey);
+  
+  if (carrier) {
+    return `
+      <div class="carrier-info">
+        <h3>${carrier.value}</h3>
+        <p>${carrier.description}</p>
+        <div class="services">
+          <strong>Services:</strong> ${carrier.supportedServices.join(', ')}
+        </div>
+        <div class="coverage">
+          <strong>Coverage:</strong> ${carrier.coverage.join(', ')}
+        </div>
+        <span class="status ${carrier.active ? 'active' : 'inactive'}">
+          ${carrier.active ? 'Active' : 'Inactive'}
+        </span>
+      </div>
+    `;
+  }
+}
+```
+
+## Integration Examples
+
+<CodeGroup>
+```javascript React
+import { useState, useEffect } from 'react';
+
+function CarrierSelector({ onCarrierChange }) {
+  const [carriers, setCarriers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchCargoCarriers()
+      .then(data => {
+        setCarriers(data.items.filter(c => c.active));
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load carriers:', err);
+        setLoading(false);
+      });
+  }, []);
+  
+  return (
+    <select onChange={(e) => onCarrierChange(e.target.value)} disabled={loading}>
+      <option value="">Select carrier...</option>
+      {carriers.map(carrier => (
+        <option key={carrier.key} value={carrier.key}>
+          {carrier.value}
+        </option>
+      ))}
+    </select>
+  );
+}
+```
+
+```python Python
+import requests
+from typing import List, Dict, Optional
+
+class CargoCarrierService:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+        self._cache = None
+        self._last_fetch = 0
+        self.cache_duration = 3600  # 1 hour
+    
+    async def get_carriers(self) -> List[Dict]:
+        """Get cargo carriers with caching"""
+        import time
+        
+        current_time = time.time()
+        if (self._cache is None or 
+            (current_time - self._last_fetch) > self.cache_duration):
+            
+            response = requests.get(f"{self.base_url}/openapi/v1/CargoCarriers")
+            response.raise_for_status()
+            
+            self._cache = response.json()['items']
+            self._last_fetch = current_time
+        
+        return self._cache
+    
+    async def get_active_carriers(self) -> List[Dict]:
+        """Get only active cargo carriers"""
+        carriers = await self.get_carriers()
+        return [c for c in carriers if c.get('active', False)]
+    
+    async def find_carrier_by_key(self, key: str) -> Optional[Dict]:
+        """Find a specific carrier by key"""
+        carriers = await self.get_carriers()
+        return next((c for c in carriers if c['key'] == key), None)
+```
+</CodeGroup>
+
+## Error Handling
+
+Always implement proper error handling for carrier-related operations:
+
+```javascript
+async function handleCarrierOperations() {
+  try {
+    const carriers = await getCargoCarriers();
+    
+    if (!carriers || !carriers.items || carriers.items.length === 0) {
+      throw new Error('No cargo carriers available');
+    }
+    
+    // Process carriers...
+    
+  } catch (error) {
+    if (error.name === 'TypeError') {
+      console.error('Network error - check API connectivity');
+    } else if (error.status === 404) {
+      console.error('CargoCarriers endpoint not found');
+    } else {
+      console.error('Failed to load cargo carriers:', error.message);
+    }
+    
+    // Fallback behavior
+    showErrorMessage('Unable to load cargo carriers. Please try again later.');
+  }
+}
+```
+
+<Info>
+**Remember**: CargoCarriers are foundational to many OPLOG operations. Always ensure you have the latest carrier information before creating shipments or processing logistics requests.
+</Info>
