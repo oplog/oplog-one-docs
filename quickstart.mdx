@@ -7,169 +7,153 @@ This quickstart guide intends to walk you through a few common scenarios to let 
 
 ## 1. Get API key
 
-OPLOG.ONE verifies a user's request by using a Bearer token in the header. We call this a Personal Access Token.
+Oplog.one verifies a user's request by using a Auth2.0 token in the header. We call this method.
 
-On the OPLOG.ONE dashboard, go to **Settings** > **API Tokens**. Click Generate New Token. Copy this token as we will use in next step. If you do not have an OPLOG.ONE account yet, you can create a sandbox account by contacting our support team.
+On the Oplog.one dashboard, go to **Integrations** > **OpenAPI** to set up the integration. Once the integration is complete, you will be provided with an **X-Tenant-Id** and a **StaticToken** for Authorization. Copy and securely store this information, as we will use it in the next step. If you do not have an Oplog.one account yet, you can contact our support team to create a staging account.
 
-## 2. Make your first API request
-
-Use your PAT token to make a request to the [GET Channels](http://localhost:7701/api/v1/channels) endpoint. You will need the channel ID to create cargo carriers, customers and products with the OPLOG.ONE API.
-
-```
-GET http://localhost:7701/api/v1/channels
-```
-
-<Tip>
-  If you are using an OPLOG.ONE sandbox account, make sure to update your endpoint to the sandbox URL provided by our team.
-</Tip>
-
-<Accordion title="Example response">
-  The channel ID to use when creating cargo carriers, customers and products would be `100102` since this is the channel that has the required permissions.
-
-  ```json GET Channel /api/v1/channels {3-24}
-  [
-    {
-        "id": 100102,
-        "name": "Logistics Access Token",
-        "application_name": "OPLOG",
-        "scopes": [
-            "cargo_carriers_write",
-            "customers_write",
-            "products_write",
-            "cargo_carriers_read",
-            "customers_read",
-            "products_read",
-            "tracking_read",
-            "tracking_write"
-        ]
-    },
-    {
-        "id": 100101,
-        "name": "OPLOG.ONE Default",
-        "application_name": "OPLOG.ONE",
-        "scopes": [
-            "cargo_carriers_read",
-            "customers_read",
-            "products_read",
-            "tracking_read"
-        ]
-    }
-  ]
-  ```
-</Accordion>
-
-## 3. Common scenarios
-
-A few common scenarios to get started with the OPLOG.ONE API. All endpoints are only accessible via `HTTPS`.
+## 2. Common scenarios
 
 <AccordionGroup>
-  <Accordion title="Create cargo carrier">
-    Below is a sample request to create a cargo carrier:
+  <Accordion title="Basic Product Create">
+    Here is a sample request to create a basic product:
 
     <Note>
-      Make sure to pass the `oplog_channel_id` in the header.
+      Make sure to pass the `X-Tenant-Id` and `StaticToken` in the header.
     </Note>
 
     <CodeGroup>
-      ```javascript POST /api/v1/cargo-carriers
+      ```json POST /api/v1/products
       {
-        "name": "Express Logistics",
-        "contact_info": "contact@expresslogistics.com",
-        "phone": "+1-555-0123",
-        "address": "123 Industrial Way, Logistics City, LC 12345"
+        "sku": "BASIC-001",
+        "barcodes": [
+          "1234567890125",
+          "9876543210983"
+        ],
+        "name": "Coffee Cup",
+        "type": "Product"
       }
       ```
     </CodeGroup>
   </Accordion>
 
-  <Accordion title="Create customer">
-    Below is a sample request to create a customer:
+  <Accordion title="Receiving Order Create">
+    Below is a sample request to create a receiving order:
 
     <Note>
-      Make sure to pass the `oplog_channel_id` in the header.
+      Make sure to pass the `X-Tenant-Id` and `StaticToken` in the header.
     </Note>
 
     <CodeGroup>
-      ```javascript POST /api/v1/customers [expandable]
+      ```json POST /api/v1/receiving-orders
       {
-        "name": "Acme Corporation",
-        "contact_person": "John Smith",
-        "email": "john.smith@acme.com",
-        "phone": "+1-555-0987",
-        "address": {
-          "street": "456 Business Blvd",
-          "suite": "Suite 200",
-          "city": "Commerce City",
-          "state": "CC",
-          "country": "US",
-          "zip_code": "54321"
-        },
-        "customer_type": "CORPORATE",
-        "credit_limit": 50000
+        "referenceNumber": "REC-CARGO-001",
+        "lineItems": [
+          {
+            "sku": "LAPTOP-001",
+            "expectedQuantity": 5
+          },
+          {
+            "sku": "MOUSE-001",
+            "expectedQuantity": 10
+          }
+        ],
+        "transferType": "CargoTransfer",
+        "cargoTransfer": {
+          "shipmentDate": "2025-06-20T14:30:00.000Z",
+          "cargoCompanyName": "FedEx",
+          "trackingNumber": "726123456789"
+        }
       }
       ```
     </CodeGroup>
   </Accordion>
 
-  <Accordion title="Create product">
-    Here is a sample request to create a product in your inventory:
+  <Accordion title="Sales Order Create">
+    Here is a sample request to create a sales order:
 
     <Note>
-      When you create products with the OPLOG.ONE API, make sure to pass the `oplog_channel_id` in the header.
+      Make sure to pass the `X-Tenant-Id` and `StaticToken` in the header.
     </Note>
 
     <CodeGroup>
-      ```javascript POST /api/v1/products [expandable]
+      ```json POST /api/v1/sales-orders
       {
-        "name": "Industrial Widget",
-        "sku": "IW-001",
-        "description": "High-quality industrial widget for manufacturing",
-        "category": "Industrial Equipment",
-        "dimensions": {
-          "length": 10.5,
-          "width": 8.2,
-          "height": 6.0,
-          "unit": "cm"
+        "referenceNumber": "ORD-2025-001",
+        "salesChannel": "mystore.com",
+        "orderCreatedAt": "2025-06-17T10:13:41.479Z",
+        "customer": {
+          "email": "customer@example.com",
+          "firstName": "John",
+          "lastName": "Smith",
+          "phone": "+12125551234"
         },
-        "weight": {
-          "value": 2.5,
-          "unit": "kg"
+        "shippingAddress": {
+          "addressFirstName": "John",
+          "addressLastName": "Smith",
+          "addressOne": "123 Main Street, Apt 45",
+          "addressTwo": "Unit 8",
+          "district": "Manhattan",
+          "city": "New York",
+          "country": "United States",
+          "addressPhone": "+12125551234"
         },
-        "unit_price": 299.99,
-        "currency": "USD",
-        "stock_quantity": 150
+        "billingAddress": {
+          "addressFirstName": "John",
+          "addressLastName": "Smith",
+          "addressOne": "123 Main Street, Apt 45",
+          "district": "Manhattan",
+          "city": "New York",
+          "country": "United States",
+          "addressPhone": "+12125551234"
+        },
+        "lineItems": [
+          {
+            "amountInOrder": 2,
+            "sku": "LAPTOP-001",
+            "productSalePrice": 1200.00,
+            "currency": "USD"
+          }
+        ],
+        "payment": {
+          "paymentOption": "Paid",
+          "totalPaymentAmount": 2400.00,
+          "currency": "USD"
+        },
+        "cargo": {
+          "cargoType": "RegularDelivery"
+        }
       }
       ```
     </CodeGroup>
   </Accordion>
 </AccordionGroup>
 
-## 4. Use Cases
+## 3. Use Cases
 
 Get started with the OPLOG.ONE API with detailed guides for your use case.
 
 <CardGroup cols="2">
-  <Card title="Manage Cargo Carriers" icon="truck" href="/use-cases/cargo-carriers">
-    Set up and manage your fleet.
+  <Card title="Product Management" icon="box" href="/use-cases/products">
+    Build your product inventory.
+  </Card>
+
+  <Card title="Receiving Order Management" icon="clipboard-list" href="/use-cases/receiving-orders">
+    Manage incoming order processes.
+  </Card>
+
+  <Card title="Sales Order Management" icon="shopping-cart" href="/use-cases/sales-orders">
+    Handle sales and order fulfillment.
+  </Card>
+
+  <Card title="Return Management" icon="undo" href="/use-cases/returns">
+    Process returns and refunds.
   </Card>
 
   <Card title="Customer Management" icon="users" href="/use-cases/customers">
     Organize customer relationships.
   </Card>
 
-  <Card title="Product Catalog" icon="box" href="/use-cases/products">
-    Build your product inventory.
-  </Card>
-
   <Card title="Track Shipments" icon="chart-mixed" href="/use-cases/tracking">
     Monitor logistics operations.
-  </Card>
-
-  <Card title="Integration Guide" icon="plug" href="/use-cases/integration">
-    Connect with existing systems.
-  </Card>
-
-  <Card title="Reporting & Analytics" icon="chart-bar" href="/use-cases/analytics">
-    Analyze logistics performance.
   </Card>
 </CardGroup>

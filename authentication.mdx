@@ -1,0 +1,53 @@
+---
+title: 'Authentication'
+description: 'Learn how to authenticate your API requests with OPLOG.ONE'
+---
+
+OPLOG.ONE uses OAuth 2.0 authentication to secure API requests. All API calls must include proper authentication headers to access the system.
+
+## Authentication Method
+
+OPLOG.ONE verifies API requests using OAuth 2.0 tokens in the request headers. This secure authentication method ensures that only authorized applications can access your data.
+
+## Getting Your API Credentials
+
+To authenticate with the OPLOG.ONE API, you need two essential credentials:
+
+<Steps>
+  <Step title="Access Integration Settings">
+    Navigate to **Integrations** > **OpenAPI** in your OPLOG.ONE dashboard
+  </Step>
+  <Step title="Complete Integration Setup">
+    Follow the integration setup process to configure your API access
+  </Step>
+  <Step title="Obtain Credentials">
+    After setup completion, you will receive:
+    - **X-Tenant-Id**: Your unique tenant identifier
+    - **StaticToken**: Your authorization token
+  </Step>
+  <Step title="Store Securely">
+    Copy and securely store both credentials - you'll need them for all API requests
+  </Step>
+</Steps>
+
+<Warning>
+  Keep your StaticToken secure and never expose it in client-side code or public repositories.
+</Warning>
+
+## Required Headers
+
+Include these headers in every API request:
+
+```http
+X-Tenant-Id: your-tenant-id
+Authorization: Bearer your-static-token
+Content-Type: application/json
+```
+
+## Account Setup
+
+If you don't have an OPLOG.ONE account yet, contact our support team at [onboarding@oplog.io](mailto:onboarding@oplog.io) to create a staging account for testing and development.
+
+<Info>
+  All API endpoints require proper authentication. Requests without valid credentials will return a 401 Unauthorized error.
+</Info>

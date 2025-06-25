@@ -236,19 +236,22 @@ When an error occurs, OPLOG.ONE returns a structured error response:
 
 ```json
 {
-  "statusCode": 400,
-  "message": "Validation failed",
-  "errors": [
-    {
-      "errorCode": "EmptyAddressFirstName",
-      "errorId": 1,
-      "message": "AddressFirstName field is required.",
-      "field": "shippingAddress.addressFirstName"
-    }
-  ]
+  "error": {
+    "code": 400,
+    "message": "Validation Errors",
+    "errors": [
+      {
+        "property": "AddressOneMaxLength",
+        "message": "AddressOneMaxLength",
+        "errorCode": "AddressOneMaxLength"
+      }
+    ]
+  },
+  "requestId": "0HMA1B2C3D4E5F678:00000001",
+  "timestamp": "2025-06-24T13:37:00.123Z"
 }
 ```
 
 <Info>
-**Error Handling Best Practice**: Always check the `errorCode` and `errorId` fields to programmatically handle specific error scenarios in your application.
+**Error Handling Best Practice**: Always check the `errorCode` and `property` fields to programmatically handle specific error scenarios in your application. Use `requestId` for support inquiries.
 </Info>

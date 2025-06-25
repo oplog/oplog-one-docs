@@ -1,33 +1,82 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Complete API documentation for OPLOG.ONE logistics and supply chain management platform'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to OPLOG.ONE API
 
-## Welcome
+The OPLOG.ONE API provides comprehensive logistics and supply chain management capabilities through a RESTful interface. Our API enables businesses to integrate powerful logistics operations including product management, order processing, inventory tracking, and shipping coordination.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+<CardGroup cols={2}>
+  <Card title="Products API" icon="box" href="#products">
+    Manage your product catalog with comprehensive inventory control
+  </Card>
+  <Card title="Sales Orders API" icon="shopping-cart" href="#sales-orders">
+    Process orders with multiple payment methods and shipping options
+  </Card>
+  <Card title="Receiving Orders API" icon="truck" href="#receiving-orders">
+    Handle incoming inventory with flexible transfer configurations
+  </Card>
+  <Card title="Returns API" icon="undo" href="#returns">
+    Streamline return processing and customer service operations
+  </Card>
+</CardGroup>
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Base URL
+
+All API requests should be made to:
+
+```
+https://api.oplog.one/openapi/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+OPLOG.ONE uses OAuth 2.0 authentication with tenant-specific tokens. Every API request must include the following headers:
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```http
+X-Tenant-Id: your-tenant-id
+Authorization: Bearer your-static-token
+Content-Type: application/json
 ```
+
+<Warning>
+  Ensure you include both `X-Tenant-Id` and `Authorization` headers in every request. Missing authentication will result in 401 Unauthorized errors.
+</Warning>
+
+## Response Format
+
+All API responses follow a consistent JSON structure:
+
+### Success Response
+```json
+{
+  "data": {
+    // Response data
+  },
+  "status": "success"
+}
+```
+
+### Error Response
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "Validation Errors",
+    "errors": [
+      {
+        "property": "fieldName",
+        "message": "Error description",
+        "errorCode": "ErrorCode"
+      }
+    ]
+  },
+  "requestId": "unique-request-id",
+  "timestamp": "2025-06-24T13:37:00.123Z"
+}
+```
+
+<Info>
+  For detailed error codes and descriptions, see our [Error Reference](/errors) documentation.
+</Info>

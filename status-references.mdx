@@ -1,0 +1,53 @@
+---
+title: 'Status References'
+description: 'Understand the different status values used across OPLOG.ONE API resources'
+---
+
+A common use case of OPLOG.ONE's API includes filtering orders, shipments, returns, or receiving orders by status. Here you will find the valid statuses by resource to help you track and manage your operations effectively.
+
+## Sales Order Statuses
+
+Sales order statuses reflect the current state of an order in the fulfillment process. These statuses help you track orders from creation to delivery.
+
+| Status | Description |
+|:-------|:------------|
+| Cancelled | Order has been cancelled |
+| Created | Order has been created |
+| Picked | Order items have been picked |
+| Packed | Order has been packed |
+| ReadyToBeShipped | Ready to be shipped |
+| Shipped | Shipped / Handed over to carrier |
+| Delivered | Delivered |
+
+<Info>
+  Sales order statuses are automatically updated as orders progress through the fulfillment pipeline.
+</Info>
+
+## Return Statuses
+
+Return statuses track the lifecycle of return requests from initiation to completion.
+
+| Status | Description |
+|:-------|:------------|
+| ReturnCreated | Return request has been created |
+| ArrivedToWarehouse | Return has arrived at warehouse |
+| Completed | Return process has been completed |
+
+<Tip>
+  Use return statuses to automate customer communications and refund processing workflows.
+</Tip>
+
+## Receiving Order Statuses
+
+Receiving order statuses track incoming inventory shipments to your warehouse facilities.
+
+| Status | Description |
+|:-------|:------------|
+| ReceivingOrderCreated | Receiving order has been created |
+| ArrivedToWarehouse | Order has arrived at warehouse |
+| Completed | Receiving order process has been completed |
+
+<Warning>
+  Receiving order statuses help manage inventory levels. Monitor these statuses to ensure accurate stock counts and timely inventory updates.
+</Warning>
+
