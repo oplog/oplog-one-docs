@@ -4,6 +4,17 @@
     "title": "OmniServices Web API",
     "version": "v1"
   },
+  "servers": [
+
+    {
+      "url": "https://api.oplog.one",
+      "description": "Production Server"
+    },
+    {
+      "url": "https://one-webapi-stg-01-dac9drerbbc8dtd3.westeurope-01.azurewebsites.net",
+      "description": "Staging Server"
+    }
+  ],
   "paths": {
     "/openapi/v1/CargoCarriers": {
       "get": {
@@ -16824,20 +16835,16 @@
       }
     },
     "securitySchemes": {
-      "Bearer": {
-        "type": "oauth2",
-        "flows": {
-          "implicit": {
-            "authorizationUrl": "https://omniservices-staging.eu.auth0.com/authorize?audience=https://omnitro.com/web",
-            "scopes": { }
-          }
-        }
+      "Authorization": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
       }
     }
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Authorization": [ ]
     }
   ]
 }

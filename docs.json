@@ -70,6 +70,12 @@
       "anchors": []
     }
   },
+  "api": {
+    "auth": {
+      "method": "key",
+      "name": "Authorization"
+    }
+  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
