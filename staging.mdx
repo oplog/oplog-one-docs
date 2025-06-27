@@ -1,0 +1,166 @@
+---
+title: 'Staging Environment'
+description: 'Test your OPLOG.ONE integration safely with our staging environment before going live'
+---
+
+The OPLOG.ONE staging environment provides a safe testing space where you can develop and test your integration with realistic, production-like data without affecting live operations.
+
+## What is the Staging Environment?
+
+The staging environment allows you to:
+
+- **Test your integration** with realistic, production-like data
+- **Validate API functionality** before implementing in production
+- **Identify and resolve issues** before they affect real shipments
+- **Practice workflows** for products, orders, and inventory management
+
+Think of it as a rehearsal—everything works like the real system, but no actual shipments are made.
+
+<Note>
+  If you haven't created a Staging account yet, contact our support team at [onboarding@oplog.io](mailto:onboarding@oplog.io) to set up your staging environment.
+</Note>
+
+## Setting Up Your Staging Environment
+
+### Step 1: Create Your Staging Account
+
+Contact our support team to create a staging account that mirrors your production setup:
+
+- Dedicated staging tenant with separate credentials
+- Test data environment with sample products and inventory
+- Access to all API endpoints in a safe testing environment
+
+### Step 2: Configure API Access
+
+Once your staging account is ready:
+
+1. **Access Dashboard**: Log into your staging dashboard at `https://staging.oplog.one`
+2. **Navigate to Integration**: Go to **Integrations** > **OpenAPI**
+3. **Complete Setup**: Follow the integration setup process
+4. **Obtain Credentials**: You'll receive staging-specific credentials:
+   - **X-Tenant-Id**: Your staging tenant identifier
+   - **StaticToken**: Your staging authorization token
+
+<Warning>
+  Store your staging credentials separately from production. Never use production credentials in staging or vice versa.
+</Warning>
+
+### Step 3: Update Base URL
+
+Use the staging base URL for all API requests:
+
+```
+https://one-webapi-stg-01-dac9drerbbc8dtd3.westeurope-01.azurewebsites.net
+```
+
+## Testing Your Integration
+
+### Available Test Scenarios
+
+You can test the following operations in staging:
+
+<CardGroup cols={2}>
+  <Card title="Product Management" icon="box">
+    Create and manage product definitions with test SKUs and inventory
+  </Card>
+  <Card title="Sales Orders" icon="shopping-cart">
+    Process test orders with various payment methods and shipping options
+  </Card>
+  <Card title="Receiving Orders" icon="truck">
+    Test incoming inventory workflows with different transfer types
+  </Card>
+  <Card title="Returns Processing" icon="undo">
+    Validate return workflows and status transitions
+  </Card>
+</CardGroup>
+
+### Testing Workflow
+
+1. **Send API Requests**: Use staging endpoints to test your integration
+2. **Check Response Codes**: 
+   - `2xx` status codes indicate successful requests
+   - `4xx` status codes indicate client errors - refer to our [Error Reference](/errors)
+3. **Monitor Status Changes**: Track order status transitions and workflow progression
+4. **Validate Data**: Ensure your integration handles responses correctly
+
+### Working with Test Data
+
+#### Product Definitions
+- Create test products with unique SKUs
+- Verify product data requirements and validation rules
+- Test inventory management workflows
+
+#### Order Processing
+- Send test orders with various configurations
+- Validate order status transitions
+- Test different payment methods and shipping options
+
+#### Inventory Operations
+- Test receiving order workflows
+- Validate stock level updates
+- Practice return processing scenarios
+
+## Staging-Specific Features
+
+### Controlled Environment
+- No real shipments or financial transactions
+- Safe testing of error scenarios
+- Ability to reset data when needed
+
+### Extended Testing Support
+For complex testing scenarios, contact your onboarding representative to:
+
+- **Configure specific test data** for your use cases
+- **Simulate warehouse operations** like receiving and shipping
+- **Test edge cases** and error conditions
+- **Validate status transitions** for orders and inventory
+
+### Data Management
+- Test data can be reset as needed
+- Multiple test scenarios can run simultaneously
+- Historical test data is maintained for debugging
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Comprehensive Testing" icon="check-circle">
+    Test all API endpoints and workflows before production deployment
+  </Card>
+  <Card title="Error Handling" icon="shield">
+    Validate error responses and implement proper error handling
+  </Card>
+  <Card title="Status Monitoring" icon="chart-line">
+    Test status transition monitoring and webhook handling
+  </Card>
+  <Card title="Data Validation" icon="search">
+    Verify data integrity and validation rules work correctly
+  </Card>
+</CardGroup>
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What can I test in the staging environment?">
+    You can test all API functionality including product creation, order processing, receiving orders, returns, and status monitoring. All operations work exactly like production but with test data.
+  </Accordion>
+
+  <Accordion title="How do I get test inventory for orders?">
+    Contact your onboarding representative to set up test inventory for your product definitions. This allows you to test complete order workflows including stock validation.
+  </Accordion>
+
+  <Accordion title="Can I test order status transitions?">
+    Yes, your onboarding representative can help simulate status transitions for orders and receiving orders to test your status monitoring and webhook integrations.
+  </Accordion>
+
+  <Accordion title="How many test orders should I create?">
+    We recommend creating at least 3-5 test orders with different configurations to thoroughly test your integration and error handling.
+  </Accordion>
+
+  <Accordion title="Is staging data isolated from production?">
+    Yes, staging and production environments are completely separate. No staging data affects production operations, and vice versa.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  Ready to move to production? Contact your onboarding representative to discuss production setup and go-live procedures.
+</Info>

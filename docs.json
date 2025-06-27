@@ -20,6 +20,7 @@
               "index",
               "authentication",
               "quickstart",
+              "staging",
               "status-references",
               "rate-limits",
               "errors"
