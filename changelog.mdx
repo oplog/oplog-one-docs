@@ -6,6 +6,21 @@ description: 'Track all updates, new features, and improvements to the OPLOG.ONE
 Track the evolution of OPLOG.ONE with our latest updates, new features, and platform improvements.
 
 <Update label="June 2025">
+  ### ✨ Added
+
+  * Added `requestId` and `timestamp` fields to the root of all API error responses to improve traceability and debugging
+  * Enhanced API documentation with interactive "Try it" functionality supporting cURL, Python, JavaScript, PHP, Go, and Java code examples
+
+  ### 🛠️ Fixed
+
+  * Investigated and fixed Error Enum Code list for consistency. You can see the updated `OmnitroErrorCode` list [here](https://oplog.mintlify.app)
+
+  ### 🔄 Changed
+
+  * Removed obsolete `courierRequest` field from Returns API after comprehensive review
+  * Disabled POST endpoint for Returns API - please use existing GET endpoints for return operations
+  * Deprecated Bearer token authentication - please use StaticToken authentication method for all API requests
+
   ### 📘 Documentation
 
   * Launched comprehensive API documentation for OPLOG.ONE
