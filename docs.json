@@ -3,9 +3,9 @@
   "theme": "willow",
   "name": "OPLOG.One Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#00A1E0",
+    "light": "#3BB8F0",
+    "dark": "#0088CC"
   },
   "favicon": "/favicon.svg",
   "navigation": {
