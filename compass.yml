@@ -1,7 +1,7 @@
 name: OPLOG One Docs
 id: 'ari:cloud:compass:310382b8-bc94-4751-abb3-c872fbd46eec:component/4082f4c9-ff71-480a-b59b-1e1981879b05/84cc74c1-7e9f-4920-bc85-97c485282987'
 slug: oplog-one-docs
-description: null
+description: Official documentation site for oplog.one (Omnitro OpenAPI). Built with Mintlify, providing comprehensive guides, API reference, and integration documentation for the Omnitro OpenAPI platform.
 configVersion: 1
 typeId: WEBSITE
 ownerId: 'ari:cloud:identity::team/c08d3248-ac0c-4f8c-9de0-56b102678228'
